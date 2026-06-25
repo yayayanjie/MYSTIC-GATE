@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>神秘之門 - 互動塔羅與神諭占卜平台</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Noto+Serif+TC:wght@300;400;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Noto Serif TC', serif;
@@ -16,22 +15,17 @@
                 radial-gradient(circle at 85% 75%, rgba(219, 39, 119, 0.12) 0%, transparent 45%);
             overflow-x: hidden;
         }
-        
         .font-cinzel {
             font-family: 'Cinzel', serif;
         }
-
-        /* 霧面玻璃效果 */
-        .glass-stage {
-            background: rgba(12, 6, 28, 0.8);
-            backdrop-filter: blur(18px);
-            border: 1.5px solid rgba(245, 158, 11, 0.15);
+        .glass-panel {
+            background: rgba(12, 6, 28, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(245, 158, 11, 0.15);
             box-shadow: 
-                0 25px 60px rgba(0, 0, 0, 0.75),
-                0 0 40px rgba(168, 85, 247, 0.15);
+                0 20px 50px rgba(0, 0, 0, 0.65),
+                0 0 30px rgba(168, 85, 247, 0.15);
         }
-
-        /* 3D 翻牌動畫 */
         .card-perspective {
             perspective: 1200px;
         }
@@ -54,11 +48,9 @@
         .card-front {
             transform: rotateY(180deg);
         }
-
-        /* 背景閃閃發光的星辰動畫 */
         @keyframes twinkle {
-            0%, 100% { opacity: 0.2; transform: scale(0.8) rotate(0deg); }
-            50% { opacity: 1; transform: scale(1.3) rotate(180deg); }
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
         }
         .sparkle-star {
             position: absolute;
@@ -67,28 +59,33 @@
             animation: twinkle 4s infinite ease-in-out;
             pointer-events: none;
         }
-        
-        /* 紫粉光呼吸燈效果 */
-        @keyframes purpleGlow {
-            0%, 100% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.15); }
-            50% { box-shadow: 0 0 30px rgba(168, 85, 247, 0.45); }
+        @keyframes cardGatherMix {
+            0% {
+                transform: translate(0, 0) scale(1) rotate(0deg);
+                z-index: 10;
+            }
+            35% {
+                transform: translate(var(--offset-x), 0) scale(0.85) rotate(var(--rot-1));
+                z-index: 5;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            }
+            50% {
+                transform: translate(var(--offset-x-mixed), -15px) scale(0.9) rotate(var(--rot-2));
+                z-index: 25;
+                box-shadow: 0 15px 30px rgba(219, 39, 119, 0.3);
+            }
+            70% {
+                transform: translate(var(--offset-x), 10px) scale(0.85) rotate(var(--rot-3));
+                z-index: 5;
+            }
+            100% {
+                transform: translate(0, 0) scale(1) rotate(0deg);
+                z-index: 10;
+            }
         }
-        .glow-purple {
-            animation: purpleGlow 3.5s infinite ease-in-out;
+        .shuffling-mix-card {
+            animation: cardGatherMix 1.7s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
-
-        /* 獨特的洗牌左右穿梭動畫 */
-        @keyframes cardShuffle {
-            0%, 100% { transform: translateX(0) scale(1); z-index: 10; }
-            25% { transform: translateX(-60px) scale(0.9) rotate(-5deg); z-index: 1; }
-            50% { transform: translateX(0) scale(0.85); z-index: 1; }
-            75% { transform: translateX(60px) scale(0.9) rotate(5deg); z-index: 20; }
-        }
-        .shuffling-card {
-            animation: cardShuffle 0.6s ease-in-out 2;
-        }
-
-        /* 自訂水平捲軸 */
         .custom-scroll::-webkit-scrollbar {
             height: 6px;
         }
@@ -103,27 +100,15 @@
         .custom-scroll::-webkit-scrollbar-thumb:hover {
             background: rgba(245, 158, 11, 0.65);
         }
-
-        /* 星雲載入特效 */
-        @keyframes nebulaPulse {
-            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.6; }
-            50% { transform: scale(1.15) rotate(180deg); opacity: 0.9; }
-        }
-        .nebula-loading {
-            animation: nebulaPulse 4s infinite linear;
-        }
     </style>
 </head>
 <body class="text-purple-100 min-h-screen flex flex-col justify-between relative overflow-x-hidden">
 
-    <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none" id="sparkle-layer">
-        <!-- 由 JavaScript 動態生成多個閃爍星辰 -->
-    </div>
+    <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none" id="sparkle-layer"></div>
 
-    <!-- AI 宇宙連結中 - 遮罩 -->
     <div id="loading-overlay" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex flex-col items-center justify-center gap-6 hidden">
-        <div class="relative w-40 h-40">
-            <div class="absolute inset-0 rounded-full border-4 border-dashed border-purple-500/30 nebula-loading"></div>
+        <div class="relative w-40 h-40 flex items-center justify-center">
+            <div class="absolute inset-0 rounded-full border-4 border-dashed border-purple-500/30 animate-spin" style="animation-duration: 8s;"></div>
             <div class="absolute inset-4 rounded-full border border-pink-500/40 animate-pulse flex items-center justify-center">
                 <svg class="w-16 h-16 text-amber-400" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5">
                     <circle cx="50" cy="50" r="30" stroke-dasharray="6 3"/>
@@ -137,11 +122,15 @@
         </div>
     </div>
 
-    <!-- 導航頭部 -->
     <header class="relative z-10 border-b border-purple-900/40 bg-black/50 backdrop-blur-md">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-3 cursor-pointer" onclick="navigate('home')">
-                <span class="text-2xl">✨</span>
+                <svg class="w-9 h-9 text-amber-400" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M20,90 C20,30 80,30 80,90" stroke-width="2"/>
+                    <circle cx="50" cy="50" r="12" stroke-dasharray="4 2"/>
+                    <path d="M50,15 L50,35 M50,65 L50,85 M15,50 L35,50 M65,50 L85,50" />
+                    <circle cx="50" cy="50" r="3" fill="currentColor"/>
+                </svg>
                 <div>
                     <h1 class="text-xl font-bold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-pink-500 font-cinzel">MYSTIC GATE</h1>
                     <p class="text-[9px] text-amber-500/80 tracking-widest uppercase">命運占卜神殿</p>
@@ -157,63 +146,63 @@
 
     <main class="flex-grow flex items-center justify-center relative z-10 px-4 py-8">
         
-        <!-- ================= 核心互動舞台 ================= -->
-        <div class="w-full max-w-5xl glass-stage rounded-3xl p-6 md:p-8 flex flex-col justify-between transition-all duration-500 relative overflow-hidden glow-purple">
+        <div class="w-full max-w-5xl glass-panel rounded-3xl p-6 md:p-8 flex flex-col justify-between transition-all duration-500 relative overflow-hidden">
             
-            <div class="absolute -right-16 -top-16 w-36 h-36 bg-purple-600/10 rounded-full blur-2xl pointer-events-none"></div>
-            
-            <!-- 頂部狀態數據列 -->
-            <div class="flex justify-between items-center border-b border-purple-900/40 pb-4 mb-6 text-xs sm:text-sm text-purple-300">
-                <div class="flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
-                    <span id="stage-breadcrumb" class="font-bold tracking-wide">占卜大廳 ‧ 當前狀態</span>
-                </div>
-                <div class="flex gap-6 items-center">
-                    <span id="counter-left">選擇：<strong class="text-amber-400 font-bold" id="counter-val">隨機共振</strong></span>
-                    <span id="counter-right">宇宙磁場：<strong class="text-pink-400 font-bold" id="cosmic-magnetic-val">100% 和諧</strong></span>
+            <div id="sec-home-header" class="space-y-4">
+                <div class="flex justify-between items-center border-b border-purple-900/40 pb-4 mb-6 text-xs sm:text-sm text-purple-300">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></span>
+                        <span class="font-bold tracking-wide">占卜大廳 ‧ 探索狀態</span>
+                    </div>
+                    <div class="flex gap-6 items-center">
+                        <span>選擇：<strong class="text-amber-400 font-bold">隨機共振</strong></span>
+                        <span>宇宙磁場：<strong class="text-pink-400 font-bold" id="cosmic-magnetic-val">92% 能量聚合</strong></span>
+                    </div>
                 </div>
             </div>
 
-            <!-- ================= 區段 1：首頁 / 占卜選單 ================= -->
+            <!-- ================= 區段 1：首頁 / 占卜選擇 ================= -->
             <div id="sec-home" class="space-y-8 py-4">
                 <div class="text-center space-y-2">
                     <span class="text-xs text-amber-500 tracking-widest font-cinzel">CHOOSE YOUR PATH</span>
                     <h2 class="text-2xl sm:text-3xl font-black text-amber-100 tracking-wide">命運探索 ‧ 能量通道選擇</h2>
                     <p class="text-xs sm:text-sm text-purple-300/80 max-w-2xl mx-auto leading-relaxed">
-                        請靜下心來，讓意識與今日的星體流動共鳴，選擇您最想要探索的能量維度。
+                        請靜下心來，讓意識與當下的星體流動產生共振。我們提供生活趨勢、美學開運與人生發展，為您解碼生命的軌跡。
                     </p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 max-w-4xl mx-auto">
-                    <!-- 今日整體運勢 -->
-                    <button onclick="initiateReading('daily')" class="group p-6 rounded-2xl bg-gradient-to-br from-indigo-950/80 to-purple-950/80 border border-amber-500/20 hover:border-amber-500/60 transition-all duration-300 hover:scale-[1.02] text-left relative overflow-hidden">
-                        <div class="flex items-center gap-4">
-                            <span class="text-3xl">🔮</span>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 max-w-4xl mx-auto items-stretch">
+                    
+                    <!-- 1. 今日整體運勢 (左) -->
+                    <button onclick="initiateReading('daily')" class="group p-6 rounded-2xl bg-gradient-to-br from-indigo-950/80 to-purple-950/80 border border-purple-500/20 hover:border-purple-500/50 transition-all duration-300 hover:scale-[1.01] text-left flex flex-col justify-between relative overflow-hidden h-full">
+                        <div class="space-y-3">
+                            <span class="text-3xl block">🔮</span>
                             <div>
                                 <h3 class="font-bold text-amber-300 text-lg">今日整體運勢</h3>
-                                <p class="text-xs text-purple-200/60 mt-1">古典大阿爾克納塔羅牌 ‧ 每日指引</p>
+                                <p class="text-xs text-purple-200/60 mt-1 leading-relaxed">古典大阿爾克納塔羅牌 ‧ 每日生活流動與生活能量指引</p>
                             </div>
                         </div>
                     </button>
 
-                    <!-- 幸運穿搭風格 -->
-                    <button onclick="initiateReading('style')" class="group p-6 rounded-2xl bg-gradient-to-br from-pink-950/80 to-purple-950/80 border border-pink-500/20 hover:border-pink-500/60 transition-all duration-300 hover:scale-[1.02] text-left relative overflow-hidden">
-                        <div class="flex items-center gap-4">
-                            <span class="text-3xl">✨</span>
+                    <!-- 2. 中長期趨勢展望 (中 - 核心主要推薦) -->
+                    <button onclick="initiateReading('future')" class="group p-6 rounded-2xl bg-gradient-to-br from-cyan-950/90 to-purple-950/90 border-2 border-amber-500/70 hover:border-amber-400 transition-all duration-300 hover:scale-[1.03] text-left flex flex-col justify-between relative overflow-hidden h-full ring-4 ring-amber-500/10">
+                        <div class="absolute right-2 top-2 bg-gradient-to-r from-amber-500 to-yellow-600 text-purple-950 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider animate-pulse">主要推薦</div>
+                        <div class="space-y-3">
+                            <span class="text-3xl block">🌌</span>
+                            <div>
+                                <h3 class="font-bold text-cyan-300 text-lg">中長期時空流動星盤</h3>
+                                <p class="text-xs text-purple-100/70 mt-1 leading-relaxed">古典大阿爾克納塔羅牌 ‧ 未來三至六個月【桃花歸屬、情感軌跡與事業格局】深度解碼</p>
+                            </div>
+                        </div>
+                    </button>
+
+                    <!-- 3. 幸運穿搭風格 (右) -->
+                    <button onclick="initiateReading('style')" class="group p-6 rounded-2xl bg-gradient-to-br from-pink-950/80 to-purple-950/80 border border-pink-500/20 hover:border-pink-500/50 transition-all duration-300 hover:scale-[1.01] text-left flex flex-col justify-between relative overflow-hidden h-full">
+                        <div class="space-y-3">
+                            <span class="text-3xl block">✨</span>
                             <div>
                                 <h3 class="font-bold text-pink-300 text-lg">幸運色與風格</h3>
-                                <p class="text-xs text-purple-200/60 mt-1">美學色彩神諭卡 ‧ 穿搭專屬靈感</p>
-                            </div>
-                        </div>
-                    </button>
-
-                    <!-- 未來三個月到半年運勢 -->
-                    <button onclick="initiateReading('future')" class="group p-6 rounded-2xl bg-gradient-to-br from-cyan-950/80 to-purple-950/80 border border-cyan-500/20 hover:border-cyan-500/60 transition-all duration-300 hover:scale-[1.02] text-left relative overflow-hidden">
-                        <div class="flex items-center gap-4">
-                            <span class="text-3xl">🌌</span>
-                            <div>
-                                <h3 class="font-bold text-cyan-300 text-lg">中長期趨勢展望</h3>
-                                <p class="text-xs text-purple-200/60 mt-1">古典大阿爾克納塔羅牌 ‧ 情感與事業格局</p>
+                                <p class="text-xs text-purple-200/60 mt-1 leading-relaxed">美學色彩神諭卡 ‧ 穿搭專屬桃花開運靈感【僅需抽取 1 張】</p>
                             </div>
                         </div>
                     </button>
@@ -222,39 +211,31 @@
 
             <!-- ================= 區段 2：全牌陣自主抽卡 ================= -->
             <div id="sec-reading" class="hidden space-y-6 py-2">
-                <div class="text-center space-y-1">
-                    <h3 id="reading-headline" class="text-xl font-bold text-amber-200">能量洗牌中...</h3>
-                    <p id="reading-sub" class="text-xs text-purple-300/80">請在此橫式牌陣中，點選最吸引您的 3 張靈魂之牌。</p>
-                </div>
-
-                <!-- 橫式槽位 -->
-                <div class="max-w-2xl mx-auto grid grid-cols-3 gap-4 py-4 px-4 bg-purple-950/30 rounded-2xl border border-purple-800/20">
-                    <div id="slot-1" class="aspect-[4/3] border border-dashed border-purple-500/30 rounded-xl flex flex-col items-center justify-center text-xs text-purple-400 bg-black/30">
-                        <span class="text-lg font-cinzel mb-1">Ⅰ</span>
-                        <span>首選：起點</span>
-                    </div>
-                    <div id="slot-2" class="aspect-[4/3] border border-dashed border-purple-500/30 rounded-xl flex flex-col items-center justify-center text-xs text-purple-400 bg-black/30">
-                        <span class="text-lg font-cinzel mb-1">Ⅱ</span>
-                        <span>次選：阻礙</span>
-                    </div>
-                    <div id="slot-3" class="aspect-[4/3] border border-dashed border-purple-500/30 rounded-xl flex flex-col items-center justify-center text-xs text-purple-400 bg-black/30">
-                        <span class="text-lg font-cinzel mb-1">Ⅲ</span>
-                        <span>終選：啟示</span>
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4 border-b border-purple-900/40 pb-3">
+                    <button onclick="navigate('home')" class="px-4 py-1.5 rounded-lg text-xs bg-purple-950/60 text-purple-300 border border-purple-800/40 hover:bg-purple-900 hover:text-amber-400 transition flex items-center gap-1.5 self-start sm:self-auto">
+                        <span>←</span> 返回占卜大廳
+                    </button>
+                    <div class="text-center space-y-1 flex-1 sm:pr-24">
+                        <h3 id="reading-headline" class="text-xl font-bold text-amber-200">能量洗牌中...</h3>
+                        <p id="reading-sub" class="text-xs text-purple-300/80">請在此橫式牌陣中選牌。</p>
                     </div>
                 </div>
 
-                <!-- 橫向卷軸牌池 -->
+                <div id="slots-wrapper" class="py-2">
+                    <!-- Dynamic slots injected via Javascript -->
+                </div>
+
                 <div class="space-y-2">
                     <div class="flex justify-between items-center text-xs px-2">
                         <span class="text-purple-300">🌟 觸摸或使用滑鼠左右拖曳選取：</span>
                         <span id="selected-counter" class="text-amber-400 font-bold">已選 0 / 3 張</span>
                     </div>
+                    <!-- Horizontal Scrolling deck pool with high fidelity scrollbar -->
                     <div id="deck-pool" class="flex gap-4 overflow-x-auto py-4 px-2 custom-scroll">
-                        <!-- 由 JS 動態注入背面牌 -->
+                        <!-- Card backs dynamically generated by JS -->
                     </div>
                 </div>
 
-                <!-- 下一步解鎖命運按鈕 -->
                 <div class="text-center">
                     <button id="btn-reveal" onclick="transitionToReveal()" class="hidden mx-auto bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700 text-purple-950 font-bold px-10 py-3 rounded-full shadow-lg shadow-amber-500/20 transform hover:scale-105 transition tracking-widest text-sm">
                         ✨ 解鎖命運法陣 →
@@ -266,24 +247,22 @@
             <div id="sec-reveal" class="hidden space-y-6 py-2">
                 <div class="text-center space-y-1">
                     <h3 class="text-xl font-bold text-amber-200 font-cinzel">TOUCH TO REVEAL</h3>
-                    <p class="text-xs text-purple-300/80">點擊下方橫向排開的卡牌進行翻面，一窺能量本質。</p>
+                    <p id="reveal-sub-hint" class="text-xs text-purple-300/80">點擊下方卡牌進行翻面，一窺能量本質。</p>
                 </div>
 
-                <!-- 三張選中牌一字排開展示 -->
                 <div id="altar" class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto py-4">
-                    <!-- 3D 卡牌容器會動態渲染在此 -->
+                    <!-- 3D Card flips injected dynamically -->
                 </div>
 
-                <!-- 解讀融合大按鈕 -->
                 <div class="text-center space-y-3">
                     <button id="btn-generate-interpretation" onclick="generateDeepInterpretation()" class="mx-auto block opacity-50 cursor-not-allowed bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold px-10 py-3 rounded-full shadow-lg shadow-purple-500/20 transition tracking-widest text-sm" disabled>
-                        🔮 融合解讀三張牌之意 🔮
+                        🔮 融合解讀命運之意 🔮
                     </button>
-                    <p id="flip-hint" class="text-xs text-purple-400/80">請先點擊上方卡牌進行翻轉，全部翻開後方可解鎖整合報告。</p>
+                    <p id="flip-hint" class="text-xs text-purple-400/80">請先點擊上方卡牌進行翻轉，翻開後方可解鎖整合報告。</p>
                 </div>
             </div>
 
-            <!-- ================= 區段 4：深度占卜報告區 ================= -->
+            <!-- ================= 區段 4：深度占卜報告區 (全新多塊分欄) ================= -->
             <div id="sec-result" class="hidden space-y-6 py-4">
                 <div class="text-center">
                     <span class="text-amber-500 text-xs tracking-widest font-cinzel">DIVINE OUTCOME</span>
@@ -291,42 +270,11 @@
                     <div class="h-0.5 w-16 bg-gradient-to-r from-amber-500 to-transparent mx-auto mt-2"></div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-                    <!-- 左側/上方：三張牌回顧 -->
-                    <div id="review-cards" class="grid grid-cols-3 lg:grid-cols-1 gap-4 bg-purple-950/20 p-4 rounded-2xl border border-purple-800/30">
-                        <!-- 縮小回顧卡 -->
-                    </div>
+                <!-- 縮小版的卡面回顧容器（修復 TypeError: Cannot set properties of null 錯誤） -->
+                <div id="review-cards" class="grid grid-cols-3 gap-4 max-w-md mx-auto mb-6 text-center"></div>
 
-                    <!-- 右側/下方：詳細統整報告 -->
-                    <div class="lg:col-span-2 space-y-4">
-                        <!-- 綜合解讀區 -->
-                        <div class="p-5 bg-purple-950/40 rounded-2xl border border-purple-800/30">
-                            <h4 class="text-sm font-bold text-amber-300 mb-2 flex items-center gap-2">
-                                <span>📜</span> 綜合能量整合流動
-                            </h4>
-                            <p id="report-summary" class="text-xs sm:text-sm text-purple-100/90 leading-relaxed text-justify"></p>
-                        </div>
-
-                        <!-- 具體穿搭/盧恩細節專屬格子 -->
-                        <div id="detail-box-container" class="hidden">
-                            <!-- 專屬穿搭指南或盧恩建議在此顯示 -->
-                        </div>
-
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <div class="p-4 bg-purple-950/40 rounded-2xl border border-purple-800/30">
-                                <h4 class="text-xs font-bold text-pink-300 mb-2 flex items-center gap-2">
-                                    <span>⚖️</span> 核心阻礙或提醒
-                                </h4>
-                                <p id="report-opp" class="text-[11px] sm:text-xs text-purple-200/80 leading-relaxed text-justify"></p>
-                            </div>
-                            <div class="p-4 bg-purple-950/40 rounded-2xl border border-purple-800/30">
-                                <h4 class="text-xs font-bold text-cyan-300 mb-2 flex items-center gap-2">
-                                    <span>🕯️</span> 宇宙專屬行動建議
-                                </h4>
-                                <p id="report-advice" class="text-[11px] sm:text-xs text-purple-200/80 leading-relaxed text-justify"></p>
-                            </div>
-                        </div>
-                    </div>
+                <div id="result-layout-container" class="space-y-6">
+                    <!-- Injected dynamically by script -->
                 </div>
 
                 <div class="text-center pt-4">
@@ -340,20 +288,20 @@
             <div id="sec-encyclopedia" class="hidden space-y-6 py-4">
                 <div class="text-center">
                     <h3 class="text-2xl font-bold text-amber-200 font-cinzel">The Book of Tarot Wisdom</h3>
-                    <p class="text-xs text-purple-300">帶領您探索古典塔羅與神秘符文的深刻源流</p>
+                    <p class="text-xs text-purple-300">帶領您探索古典塔羅與神秘世界的深刻源流</p>
                 </div>
 
                 <div class="grid md:grid-cols-2 gap-6">
-                    <div class="bg-purple-950/30 p-5 rounded-2xl border border-purple-800/20 space-y-3">
+                    <div class="glass-panel p-5 rounded-2xl border border-purple-800/20 space-y-3">
                         <h4 class="text-md font-bold text-amber-300 border-b border-purple-900 pb-2">大阿爾克納與心靈成長之旅</h4>
                         <p class="text-xs text-purple-200/80 leading-relaxed">
-                            古典塔羅的大阿爾克納 (Major Arcana) 共 22 張，從 0 號「愚者」啟程，歷經種種挑戰與心靈洗禮，終至 21 號「世界」圓滿。這條路徑象徵著個人心智、靈魂和智慧在不同生命階段的演化和覺醒歷程。
+                            古典塔羅的大阿爾克納 (Major Arcana) 共 22 張，從 0 號「愚者」啟程，歷經種種挑戰與心靈洗禮，終至 21 號「世界」圓滿。這條路徑象徵著個人心智、情感和智慧在不同生命階段的演化和覺醒歷程。當您在關係中感到迷茫時，卡牌能投射出心靈底層的真實渴求。
                         </p>
                     </div>
-                    <div class="bg-purple-950/30 p-5 rounded-2xl border border-purple-800/20 space-y-3">
-                        <h4 class="text-md font-bold text-pink-300 border-b border-purple-900 pb-2">風格神諭卡與盧恩符文</h4>
+                    <div class="glass-panel p-5 rounded-2xl border border-purple-800/20 space-y-3">
+                        <h4 class="text-md font-bold text-pink-300 border-b border-purple-900 pb-2">風格神諭卡與美學能量引導</h4>
                         <p class="text-xs text-purple-200/80 leading-relaxed">
-                            <strong>風格神諭卡：</strong> 與架構嚴謹的塔羅牌不同，神諭卡更富有美感和流動的直覺能量。它不著重於預測未來，而是為當下疲倦的心靈提供和諧的美學滋養。
+                            與架構嚴謹的古典塔羅不同，神諭卡更富有美感和流動的直覺能量。它不著重於嚴厲的預測或規則，而是為當下疲倦、渴望桃花滋養的心靈提供和諧的美學支持。透過色彩、材質暗示，讓您由內而外散發獨特的吸引力磁場。
                         </p>
                     </div>
                 </div>
@@ -371,15 +319,13 @@
                     <button onclick="filterGallery('oracle')" id="btn-gal-oracle" class="px-3 py-1.5 rounded-lg text-xs text-purple-300 hover:bg-purple-950/60">神諭 (8)</button>
                 </div>
 
-                <!-- 展示網格 -->
                 <div id="gallery-grid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 max-h-72 overflow-y-auto pr-1 custom-scroll">
-                    <!-- 牌面展示由 JS 動態生成 -->
+                    <!-- Dynamic Gallery of SVG designs -->
                 </div>
             </div>
 
-            <!-- 底部引導/提示說明列 -->
             <div class="border-t border-purple-900/40 pt-4 mt-6 text-center">
-                <p id="bottom-status-hint" class="text-[11px] text-purple-400">系統提示：深呼吸，靜心感應。挑戰與智慧將會在命運解讀中具體展現。</p>
+                <p id="bottom-status-hint" class="text-[11px] text-purple-400">系統提示：深呼吸，靜心感應。情感與未來的秘密將在牌陣中浮現。</p>
             </div>
 
         </div>
@@ -390,10 +336,10 @@
         <p>© 2026 Mystic Gate All Rights Reserved. 個人專屬神秘命運殿堂</p>
     </footer>
 
-    <!-- ================= 系統數據與邏輯處理 ================= -->
     <script>
         window.onload = function() {
             createSparkles();
+            updateCosmicMagnetic();
         }
 
         function createSparkles() {
@@ -419,7 +365,13 @@
             }
         }
 
-        // SVG 卡面範本
+        function getRomanNum(num) {
+            if (num === 1) return 'Ⅰ';
+            if (num === 2) return 'Ⅱ';
+            if (num === 3) return 'Ⅲ';
+            return num;
+        }
+
         const SVG_TEMPLATES = {
             fool: `<g stroke="currentColor" stroke-width="1.2" fill="none"><circle cx="100" cy="110" r="15" stroke-dasharray="3 3"/><path d="M60 160 L100 110 L140 160"/><line x1="100" y1="110" x2="100" y2="40"/><circle cx="100" cy="40" r="6" fill="currentColor"/><path d="M100 60 Q120 70 100 80 Q80 90 100 100" stroke-dasharray="2 2"/></g>`,
             priestess: `<g stroke="currentColor" stroke-width="1.2" fill="none"><line x1="60" y1="40" x2="60" y2="160" stroke-width="2"/><line x1="140" y1="40" x2="140" y2="160" stroke-width="2"/><circle cx="100" cy="70" r="22" fill="currentColor" fill-opacity="0.1"/><path d="M100 48 A22 22 0 0 0 100 92 Z" fill="currentColor"/><rect x="80" y="110" width="40" height="25" rx="2"/></g>`,
@@ -445,191 +397,189 @@
             world: `<g stroke="currentColor" stroke-width="1.2" fill="none"><ellipse cx="100" cy="100" rx="45" ry="65" stroke-width="1.5" stroke-dasharray="6 3"/><circle cx="100" cy="100" r="15" fill="currentColor" fill-opacity="0.15"/></g>`
         };
 
-        // 22張大阿爾克納古典塔羅牌
         const TAROT_CARDS = [
             { id: 0, name: "愚者 (The Fool)", keyword: "踏出第一步、大膽嘗試", svg: SVG_TEMPLATES.fool,
-              daily_start: "今天在一股毫無防備、如同孩子般的純粹能量中開啟。這是一個適合放下所有預設立場，勇往直前的絕佳時刻。",
-              daily_opp: "中午前後容易面臨思慮不夠周全、或過於粗心大意的瓶頸，切忌一時衝動做出重要承諾。",
-              daily_advice: "建議您放膽去信任當下的靈感與直覺。有些事不一定要百分百準備好才能開始，行動本身就是最好的解藥。",
-              future_start: "未來一段時間會面臨全新的起點。這是一個生活架構大翻新的序曲，放手去追尋新的志向吧。",
-              future_opp: "未來可能遇到因為缺乏規劃、或者行事太過天真而跌跤的阻礙，請適度聽取旁人客觀的規勸。",
-              future_advice: "命運希望您保持樂觀與開放。不要被過去的陰霾束縛，勇敢去開創不曾嘗試過的新領域。"
+              daily_start: "今天在一股純粹的勇氣與桃花能量中開啟。在情感生活層面上，您有一股想要突破現狀、甚至主動表達好感的浪漫探索渴望。",
+              daily_opp: "在與心儀對象或他人溝通時，容易面臨過於衝動或思慮不周的考驗，切忌在沒有任何承諾基礎下做出承諾。",
+              daily_advice: "建議您放膽去信任當下的眼緣。感情不一定要想得太過深奧，一次自然幽默的攀談就是最好的起手式。",
+              future_start: "未來這段時間會面臨深刻的情感重組與生活新起點。這是一個生活架構大翻新的序曲，放手去追尋新的感情與事業藍圖吧。",
+              future_opp: "發展新關係時，可能遇到因為缺乏長遠心靈支撐、或者行事太過天真而受挫的阻礙，請適度聽取旁人客觀的情感規勸。",
+              future_advice: "命運希望您保持樂觀與開放。不要被過去失敗的情感陰霾束縛，勇敢去開創不曾嘗試過的新連結。"
             },
             { id: 1, name: "魔術師 (The Magician)", keyword: "大展身手、手到擒來", svg: SVG_TEMPLATES.magician,
-              daily_start: "清晨的能量充滿無限的創造力。您手邊擁有足夠的資源，今天非常適合啟動停滯已久的新計劃或提案。",
-              daily_opp: "中午過後可能會因為想法太多，導致焦點分散，或是因為眼高手低而產生無謂的挫折感。",
-              daily_advice: "今天請專注展現您的專業能力與才華。只要您肯主動開口，周圍的人都會輕易被您的魅力吸引與說服。",
-              future_start: "接下來將進入您的才華爆發期，資源與技能會完美整合，這是一個適合主導各類新局面的黃金期。",
-              future_opp: "中長期最大的絆腳石是空有完美規劃卻遲遲不肯下水實踐，或是過度高估了自己的精力上限。",
-              future_advice: "宇宙建議您大膽邁開腳步。您已經準備好一切必備的工具，主動出擊才能將機會穩穩抓在手裡。"
+              daily_start: "清晨的能量充滿無限的創造力與桃花魅力。手邊資源充足，您天生具備的幽默感，能輕易在對談中吸引心儀者的目光。",
+              daily_opp: "容易因為想法太多而焦點分散，或是在面臨感情與社交選擇時，因為眼高手低而產生不安全感。",
+              daily_advice: "展現您的溝通藝術。只要您肯主動發起對話或約會邀請，周圍的人都會輕易被您的風趣話語深深吸引。",
+              future_start: "接下來將進入您的魅力爆發期，事業與情感資源完美整合，這是一個適合在親密關係中主導大局的黃金期。",
+              future_opp: "中長期最大的絆腳石是空有完美的情感期待卻遲遲不肯付諸實踐，或是過度高估了自己的精力上限。",
+              future_advice: "宇宙建議您大膽邁開腳步。您已經準備好一切追愛工具，主動出擊才能將真愛穩穩抓在手裡。"
             },
             { id: 2, name: "女祭司 (The High Priestess)", keyword: "相信直覺、靜觀其變", svg: SVG_TEMPLATES.priestess,
-              daily_start: "今天宜走安靜沉穩的路線。您的第六感極其敏銳，早晨適合做些冥想、沉澱思緒，不宜進行激烈的應酬。",
-              daily_opp: "中午之後容易因為想太多、或內心情感波動太大而顯得過於冷淡與防備，造成溝通上的隔閡。",
-              daily_advice: "遇到難題時，不需要急著跟任何人起衝突。多給自己一點獨處與寫寫筆記的時間，直覺會給您最清澈的答案。",
-              future_start: "未來的主軸偏向精神世界的提升與觀察。這是一段適合進修、學習、以及深耕專業知識的沉潛時期。",
-              future_opp: "最大的阻礙在於過度壓抑真實情感，或是對外在變化採取太過消極、抗拒的自閉心態。",
-              future_advice: "命運指引您要學會相信自己的內在洞察。靜觀其變、以靜制動，往往能看穿最複雜的局勢。"
+              daily_start: "今天宜走安靜沉穩的路線。您的第六感極其敏銳，感情上能敏銳察覺心儀對象的細微心思變化，不需要急著戳破。",
+              daily_opp: "容易在親密關係中，因為想得太多、或內心防禦心過重而顯得冷淡，造成不必要的溝通隔閡與誤會。",
+              daily_advice: "遇到情感或生活難題時，不需要急著起衝突。多給自己一點獨處與沉澱，直覺會給您最清澈的答案。",
+              future_start: "未來的主軸偏向內在心靈的提升與靜態觀察。感情上代表與伴侶的精神世界產生更深刻、更有靈魂默契的連結。",
+              future_opp: "最大的阻礙在於過度壓抑真實的情感流露，或是對愛情的接近採取太過消極、抗拒的自閉心態。",
+              future_advice: "命運指引您要學會相信自己的內在洞察。靜觀其變、以靜制動，往往能看穿最複雜的情感糾葛。"
             },
             { id: 3, name: "皇后 (The Empress)", keyword: "享受豐盛、愛與美好", svg: SVG_TEMPLATES.empress,
-              daily_start: "今天散發著無與倫比的和諧與豐盛磁場。適合去親近大自然、打扮自己，或感受生活中最微小的美好。",
-              daily_opp: "中午左右可能會陷入過度縱容自己、或是有些懶散、甚至在人際關係上展現過強佔有慾的盲點中。",
-              daily_advice: "請盡情款待辛苦的自己。去吃頓豐盛的美食、買件舒適的衣服、或是與喜愛的人窩在一起聊天，能快速充飽電。",
-              future_start: "未來幾個月您的生活將迎來收割期，物質與情感都會得到很大的滿足，特別容易孕育出有價值的結晶。",
-              future_opp: "中長期要注意不要因為安逸過度而失去奮鬥的銳氣，或在情感中對旁人產生過度的心理依賴。",
-              future_advice: "大膽去展現您的包容心與美感。多分享您的愛與溫暖，這會像磁鐵一樣為您吸來更多的貴人。"
+              daily_start: "今天散發著無與倫比的和諧、感性與豐盛磁場。桃花運勢極佳，適合展現您的溫柔、打扮自己，感受被愛包圍的溫暖。",
+              daily_opp: "容易陷入過度縱容自己、在感情中展現過強佔有慾的盲點，或過度在意他人對你的評價而產生無謂的傲內向焦慮。",
+              daily_advice: "盡情釋放您的愛與包容。主動關心愛人或朋友，多分享您的溫暖，這會像磁鐵一樣為您吸來更多的貴人與好桃花。",
+              future_start: "未來幾個月您的生活與情感將迎來收割期，物質與親密關係都會得到很大的滿足，特別容易孕育出真摯、穩固的伴侶關係。",
+              future_opp: "中長期要注意不要因為日子過得太過安逸，而在情感互動中對旁人產生過度的依賴，失去了自我的獨立性。",
+              future_advice: "大膽去展現您的包容心與美感。不要吝嗇分享您的愛與溫暖，多包容對方，這會是您幸福的源泉。"
             },
             { id: 4, name: "皇帝 (The Emperor)", keyword: "展現魄力、條理分明", svg: SVG_TEMPLATES.emperor,
-              daily_start: "今天您擁有極強的主導權。上午做事效率極高，非常適合用來整頓混亂的作息、工作排程與財務狀況。",
-              daily_opp: "日中時段可能會顯得過於固執己見，聽不進晚輩或合作夥伴的軟性意見，導致氣氛有些緊繃僵硬。",
-              daily_advice: "拿出您的肩膀與擔當，果斷做出合理的決策。您的專業感與掌控力，在此時會是眾人最信賴的防雨傘。",
-              future_start: "未來是一個建立權威、穩固個人地盤與事業版圖的關鍵時期，組織紀律和條理是成功的核心。",
-              future_opp: "最大的挑戰來自於過度僵化的控制欲，或是原因為過分好面子而拒絕承認計劃中的漏洞。",
-              future_advice: "命運要求您建立起清晰的邊界感與規則。穩紮穩打、有條不紊地推進目標，您將會取得無比堅實的成就。"
+              daily_start: "今天您擁有極強的主控與安全感。做事條理分明，在人際關係中能展現出令人信賴的擔當與成熟風範。",
+              daily_opp: "在處理感情或合作關係時可能顯得過於固執己見，聽不進對方的軟性撒嬌與意見，導致氣氛有些緊繃僵硬。",
+              daily_advice: "拿出您的肩膀與包容力，果斷做出合理的決策。您的專業感與安全感，在此時是伴侶最信賴的遮雨棚。",
+              future_start: "未來是一個建立威信、穩固個人地盤與事業/家庭版圖的關鍵時期，組織紀律和承諾是維持情感穩定的核心。",
+              future_opp: "最大的挑戰來自於過度僵化的控制欲，或是原因為過分好面子而拒絕在情感爭執中主動低頭認錯。",
+              future_advice: "命運要求您建立起清晰的責任感。穩紮穩打地推進生活與愛情目標，您將會取得堅實的成就。"
             },
             { id: 5, name: "教皇 (The Hierophant)", keyword: "尋求指導、貴人相助", svg: SVG_TEMPLATES.hierophant,
-              daily_start: "今天與體制、規範有很好的共鳴。適合主動向有經驗的長輩、主管請教，您會得到非常有價值的解答。",
-              daily_opp: "中午過後容易因為墨守成規、或太想當個好人而顯得有些畏縮不前，不敢突破不合時宜的舊框框。",
-              daily_advice: "多配合團體的共同規矩。在人際相處上，多以誠信和傳統禮貌待人，自然能收穫豐沛的信任與好口碑。",
-              future_start: "未來幾個月您的身邊將出現提攜您的關鍵貴人。這是一段適合簽約、建立合作或取得某項資格的時期。",
-              future_opp: "中長期容易被體制庫束，或是因為過度相信所謂的權威而失去了自我探索的彈性與熱情。",
-              future_advice: "命運引導您走正道。保持謙遜好學的心態，多跟優秀的前輩交流，這會讓您少走非常多的冤枉路。"
+              daily_start: "今天與體制、承諾有很好的共鳴。在感情上非常有利於談及長期未來，或是尋求有智慧的朋友為您的感情指點迷津。",
+              daily_opp: "容易因為墨守成規、或太想在關係中當好人而顯得畏縮不前，不敢突破不合時宜的情感舊框框或包袱。",
+              daily_advice: "多配合團體的規矩，以誠信和禮貌待人。在親密關係中展現足夠的誠意與責任心，自然能收穫好緣分。",
+              future_start: "未來幾個月您的身邊將出現提攜您的關鍵貴人，感情上也指引著這是一段適合簽約、建立穩定關係的黃金期。",
+              future_opp: "中長期容易被死板的責任束縛，或是因為過度在乎外界世俗的眼光而失去了感情探索的彈性與熱情。",
+              future_advice: "命運引導您走正道。保持謙遜、信守承諾，多跟優秀的前輩交流，這會讓您在生活與愛情道路上少走冤枉路。"
             },
             { id: 6, name: "戀人 (The Lovers)", keyword: "和諧關係、真誠選擇", svg: SVG_TEMPLATES.lovers,
-              daily_start: "清晨的空氣充滿愉悅的人際共鳴。這是一個適合約會、面試或和朋友聚會的社交高光時刻。",
-              daily_opp: "中午前後容易在兩個選擇之間猶豫不決，或因為太想討好每個人而做出違背自己內心的妥協。",
-              daily_advice: "請做出發自內心深處的決定。只要順應自己真正喜歡的方向，您的決定就會帶您走向快樂。",
-              future_start: "未來的核心關鍵在於和諧的合夥、戀愛升溫或是面臨人生重大的道路抉擇。這會是一段愉快的旅程。",
-              future_opp: "最大的考驗在於容易被外在誘惑動搖，或在親密關係中因為溝通不良而產生信任危機。",
-              future_advice: "宇宙建議您保持內在價值的對齊。唯有真誠的面對自己的需求與感受，才能建立持久且舒服的連結。"
+              daily_start: "空氣中充滿愉悅的粉紅泡泡與社交共振！桃花運勢直接拉滿，這是一個適合約會、向心儀者坦白心聲的高光時刻。",
+              daily_opp: "容易在兩個選擇之間猶豫不決，或因為太想討好伴侶而做出違背自己內心真實渴望的妥協與委屈。",
+              daily_advice: "做出發自內心深處的決定。只要順應自己真正喜歡、真誠相待的方向，您的情感道路就會帶您走向長久的快樂。",
+              future_start: "未來的核心關鍵在於和諧的合夥、戀愛升溫或是面臨人生重大的道路抉擇。這會是一段無比愉快的真愛旅程。",
+              future_opp: "最大的考驗在於容易被外在的誘惑動搖，或在親密關係中因為溝通不夠真誠而產生信任危機。",
+              future_advice: "宇宙建議您保持內在價值的一致。唯有真誠的面對自己的需求與感受，才能建立持久且舒服的伴侶連結。"
             },
             { id: 7, name: "戰車 (The Chariot)", keyword: "全力衝刺、克服萬難", svg: SVG_TEMPLATES.chariot,
-              daily_start: "今天是一整天戰鬥力爆棚的時刻！體內湧動著不服輸的渴望，非常適合用來攻克最困難的工作或挑戰。",
-              daily_opp: "日中時容易因為脾氣太衝、或控制不好前進的力道，而與他人產生正面言語衝突，請克制情緒。",
-              daily_advice: "請將您的意志力轉化為實質的推進力。不要被突發的小插曲打亂陣腳，堅信自己的方向，衝過去就對了。",
-              future_start: "未來將面臨一波急遽的擴張與競爭，這需要您拿出百分之百的決心，透過堅韌不拔的毅力拔得頭籌。",
-              future_opp: "中長期最需要提防的是漫無目的地瞎忙、或在多重目標之間拉扯，導致體能與精力徹底透支。",
-              future_advice: "命運催促您集中精力、鎖定單一目標。掌控好前進的節奏，不要中途動搖，凱旋而歸的日子就在前方。"
+              daily_start: "今天是一整天戰鬥力爆棚的時刻！在情感追求上，您充滿了不服輸的執著，非常適合用來主動發起攻勢、追求真愛。",
+              daily_opp: "容易在推進感情進度時因脾氣太衝或掌控欲過強，而與重要他人產生直接的言語摩擦，請克制情緒。",
+              daily_advice: "將您的意志力轉化為實質的體貼。不要被路上的小阻礙打亂陣腳，堅信自己的愛意與目標，勇敢前進就對了。",
+              future_start: "未來將面臨一波急遽的關係進展與外在競爭，這需要您拿出百分之百的決心，透過堅持克服外界的流言蜚語。",
+              future_opp: "中長期最需要提防的是在多個情感或工作目標之間拉扯，漫無目的地瞎忙導致身心透支、雙方心累。",
+              future_advice: "命運催促您集中精力、鎖定單一核心目標。掌控好關係前進的節奏，不要中途動搖，收割真愛就在前方。"
             },
             { id: 8, name: "力量 (The Strength)", keyword: "以柔克剛、溫柔耐心", svg: SVG_TEMPLATES.strength,
-              daily_start: "今天適合走溫和優雅路線。您擁有一股無形卻強大的親和力，能讓人不自覺地對您卸下防備心。",
-              daily_opp: "中午過後容易在處理繁瑣小事時失去耐性，或是試圖用強硬的手腕壓制反對聲音，造成反彈。",
-              daily_advice: "強硬不代表有力。請保持微笑、傾聽和耐心。用溫柔與幽默去感化那些難纏的人事物，效果絕對驚人。",
-              future_start: "未來這段時間是鍛鍊內在心靈韌性的階段。您會學會如何與自己的缺點或壞習慣和平共處，取得和解。",
-              future_opp: "中長期會面臨意志力薄弱、被惰性擊敗，或是過度迎合他人要求而忽略自己心理健康的阻礙。",
+              daily_start: "您擁有一股無形卻強大的親和力。在感情交往中，這種溫柔的魅力能讓最任性的對象不自覺地對您卸下防備。",
+              daily_opp: "容易在處理繁瑣的情感互動時失去耐性，試圖用強硬、冷戰的手腕壓制反對聲音，造成關係反彈。",
+              daily_advice: "強硬不代表有力。請保持微笑、傾聽和耐心。用溫柔與幽默去撫平愛人的焦慮，效果絕對遠超大聲爭吵。",
+              future_start: "未來這段時間是鍛鍊情感心靈韌性的關鍵階段。您會學會如何與對方的缺點和平共處，取得靈魂上的契合。",
+              future_opp: "中長期會面臨意志力薄弱、被惰性擊敗，或是過度迎合伴侶要求而忽略自己心理健康的盲目犧牲阻礙。",
               future_advice: "宇宙叮嚀您：真正的勇氣是溫柔的。相信自己的軟實力，用包容和耐力去深耕，時間會證明您的強大。"
             },
             { id: 9, name: "隱士 (The Hermit)", keyword: "留給自己一些時間空間", svg: SVG_TEMPLATES.hermit,
-              daily_start: "今天是一天充電日。上午您會渴望有些私人的空間，不宜安排太滿的會議或喧囂的社交聚會。",
-              daily_opp: "中午過後容易給人一種冷漠、難以接近的距離感，或是深陷在自己的執念中，拒絕與外界溝通。",
-              daily_advice: "晚上給自己留個一兩小時獨處吧。寫寫日記、看看書、或安靜地整理房間，這能讓您的精神狀態重回巔峰。",
-              future_start: "未來幾個月您的生活步調會變慢，這是一個非常適合深度思考、研究、或是進行專業技術內功修練的沉潛期。",
-              future_opp: "中長期要注意不要讓自己流於孤僻落後，或因為想太多而產生與社會、人群徹底脫節的孤寂感。",
-              future_advice: "命運建議您：點亮自己內心的燈塔。在看清前面的路之前不要盲目跟風，先弄清楚自己要什麼最重要。"
+              daily_start: "今天是一天充電日。感情上您渴望有些私人的空間，適合與伴侶各退一步、安靜地各自做喜歡的事，保持舒適邊界。",
+              daily_opp: "容易給人一種冷漠、難以接近的距離感，或在面對感情困境時深陷在自己的執念中，拒絕與外界溝通。",
+              daily_advice: "給自己留點時間整理心境。當您的精神狀態重回巔峰時，您在親密關係中才會更有底氣與包容力。",
+              future_start: "未來幾個月您的生活步調會變慢，感情上偏向理性的磨合與沉澱，這是一個深度考驗彼此精神契合度的沉潛期。",
+              future_opp: "中長期要注意不要讓自己流於孤僻、逃避社交，或原因為想得太多而產生與人群、伴侶徹底隔閡的孤寂感。",
+              future_advice: "命運建議您：點亮自己內心的燈。在看清前面的情感路徑之前不要盲目跟風承諾，先弄清楚自己想要什麼最重要。"
             },
             { id: 10, name: "命運之輪 (Wheel of Fortune)", keyword: "好運來臨、順應流動", svg: SVG_TEMPLATES.wheel,
-              daily_start: "命運的風向在今天開始轉變了。清晨會有些意想不到的小插曲，這通常代表好運正悄悄敲門。",
-              daily_opp: "中午左右如果遇到計畫被打亂，容易產生無謂的抗拒與焦慮。別試圖硬性控制所有事情的走向。",
-              daily_advice: "請順應宇宙的潮汐前行。放鬆您的控制欲，接受變更與臨時邀約，它會帶領您去到更好、更奇妙的境地。",
-              future_start: "未來半年將會迎來生活軌道的重大翻轉，長期的陰霾即將散去，新契機、新好運正大步朝您奔來。",
-              future_opp: "最大的阻礙是固步自封、死守著舊有的生活模式與觀念不放，因而錯失了命運之輪送來的船票。",
-              future_advice: "命運之門已經為您敞開。當機遇出現時，毫不猶豫地順應流動、大膽嘗試，這會是您人生躍遷的起點。"
+              daily_start: "命運的桃花與好運風向在此刻悄悄轉變了。在情感關係中會有些意想不到的偶遇、巧合或邀約，這代表緣分正悄悄敲門。",
+              daily_opp: "如果遇到計畫被打亂，容易產生無謂的抗拒與焦慮，試圖強行扭轉局面反而會給伴侶和自己帶來無謂的爭執壓力。",
+              daily_advice: "請順應宇宙的潮汐。放鬆您的控制欲，接受變更與臨時邀約，它會帶領您去到更奇妙、更有火花的新境地。",
+              future_start: "未來半年將會迎來情感軌道或生活層面的重大翻轉，單身者極易遇到真命伴侶，關係也將迅速突破現狀。",
+              future_opp: "最大的阻礙是固步自封、死守著舊有的感情觀念、受傷回憶與相處模式不放，因而錯失了命運送來的幸福船票。",
+              future_advice: "命運之門已經為您敞開。當情感機遇出現時，毫不猶豫地順應流動、大膽嘗試，這會是您人生躍遷的起點。"
             },
             { id: 11, name: "正義 (The Justice)", keyword: "理性分析、公平回報", svg: SVG_TEMPLATES.justice,
-              daily_start: "今天您擁有像尺規一樣精準的判斷力。上午非常適合處理法律合約、理財規劃或是做繁雜的整理。",
-              daily_opp: "中午左右在待人處事上容易顯得太過冷酷不近人情，或是太計較得失，讓人覺得缺少了人情溫度。",
-              daily_advice: "做任何決定時請保持中立與客觀。種什麼因就得什麼果，只要問心無愧、條理分明，您就會贏得應有的尊重。",
-              future_start: "未來幾個月會有很多客觀分析、合約簽署或解決糾紛的時刻，一切事情都將回歸到最公平的軌道上。",
-              future_opp: "中長期容易因為過分追求完美與絕對的公平，而讓自己陷入反覆權衡、無法做決定的糾結泥淖中。",
-              future_advice: "宇宙指引您：保持言行一致。理智與誠實是您未來最堅固的護盾，只要坦蕩面對，結果必然順遂。"
+              daily_start: "今天您擁有極其精準的判斷力。面對感情中的糾葛，您能夠以超然、客觀的心態，理清是非，做出正確決定。",
+              daily_opp: "在面對伴侶時容易顯得太過冷酷、計較得失，凡事流於「講理」而忽略了親密關係中最重要的人情溫度。",
+              daily_advice: "做任何決定時請保持中立與客觀。在情感中，尊重是雙向的，給予對方應有的空間與公平對待，關係自會回歸和諧。",
+              future_start: "未來幾個月會有很多理智抉擇、承諾確立或解決舊情感糾紛的時刻，一切事情都將回歸到最公平與和諧的軌道上。",
+              future_opp: "中長期容易原因為過分追求完美與絕對的得失公平，而讓自己陷入反覆權衡、無法在愛情中跨出第一步的糾結中。",
+              future_advice: "宇宙指引您：保持言行一致。理智與誠實是您未來最堅固的護盾，只要坦蕩面對心中真實感受，結果必然順遂。"
             },
             { id: 12, name: "倒吊人 (The Hanged Man)", keyword: "換個角度看、以退為進", svg: SVG_TEMPLATES.hangedman,
-              daily_start: "今天不宜強求。上午若遇到事情卡關、或是進度卡住，代表此時放手、靜靜等待才是最聰明的做法。",
-              daily_opp: "日中容易產生憋屈、或自我犧牲太多而感到的委屈感，避免在情緒低落時做下任何委曲求全的決定。",
-              daily_advice: "試著換個相反的角度來想事情。停下無謂的掙扎，將這段等待的時間用來充實自我，這也是一種前進。",
-              future_start: "未來三個月到半年將是一段耐力考驗期，很多計劃進度緩慢，這要求您學會以退為進，在靜止中修煉心智。",
-              future_opp: "最大的絆腳石是盲目暴躁地想衝出重圍，或是陷入無意義的悲觀情緒，白白消耗了自己的心力。",
-              future_advice: "命運請您放寬心。有時候暫時放開掌控，才是最頂級的智慧。在安靜中等待，對的時機會主動浮現。"
+              daily_start: "今天在人際與感情上不宜強求。若遇到與對方溝通卡住，代表此時放手、給予彼此空間才是最聰明的做法。",
+              daily_opp: "容易產生憋屈、或在感情中自我犧牲太多而感到的委屈感，避免在情緒低落時做下任何委曲求全的低自尊決定。",
+              daily_advice: "試著換個相反的角度來想事情。停下無謂的情感掙扎，將這段等待的時間用來充實自我，對方的態度反而會好轉。",
+              future_start: "未來三個月到半年將是一段耐力考驗期，感情與事業進度緩慢，這要求您學會以退為進，在等待中淬鍊彼此的真情。",
+              future_opp: "最大的絆腳石是盲目、暴躁地想衝出重圍，或在關係中怨天尤人，白白消耗了自己的精神與好感度。",
+              future_advice: "命運請您放寬心。有時候暫時放開掌控與執著，才是最頂級的智慧。在安靜中等待，對的時機會主動浮現。"
             },
             { id: 13, name: "死神 (The Death)", keyword: "舊的不去，新的不來", svg: SVG_TEMPLATES.death,
-              daily_start: "新舊能量在此時劇烈交替。清晨適合做個徹底的大掃除，把用不到的雜物或負面情緒通通打包丟掉。",
-              daily_opp: "中午前後對於已經失去價值的舊關係、或舊習慣依舊死抓不放，這種抗拒會讓您感到莫名的疲憊。",
-              daily_advice: "請微笑著跟不適合的一切告別。雖然心中有一點捨不得，但這正是您迎來輕鬆、重獲新生的唯一途徑。",
-              future_start: "未來半年將會經歷一場深刻的人生斷捨離，某些維持已久的結構會徹底瓦解，取而代之的是空前的新生。",
-              future_opp: "中長期最大的痛苦來源於不甘心與執著。如果一直往後看，您就沒辦法騰出雙手來接住未來的新禮物。",
-              future_advice: "不要害怕結束。這是一場宇宙為您規劃的排毒與重開機，徹底放下舊包袱，您才能飛得更高。"
+              daily_start: "新舊能量在此時劇烈交替。清晨適合來個徹底的斷捨離，把不合適的情感曖昧、負面情緒通通丟掉。",
+              daily_opp: "對於已經失去價值的舊關係、或負面生活習慣依舊死抓不放，這種不甘心與抗拒會讓您感到莫名的疲憊。",
+              daily_advice: "微笑著跟不適合、傷害您的一切告別。雖然心中有一點不捨，但這正是您騰出雙手，接住真愛與新生活的唯一途徑。",
+              future_start: "未來半年將會經歷一場深刻的人生與情感斷捨離，某些名存實亡的舊結構會徹底瓦解，取而代之的是生命的新生。",
+              future_opp: "中長期最大的痛苦來源於不甘心。如果雙眼一直盯著已經逝去、不愛你的人不放，您就沒辦法迎接新的人到來。",
+              future_advice: "不要害怕結束。這是一場宇宙為您規劃的重開機，徹底放下舊包袱與情感遺憾，您才能迎接嶄新桃花。"
             },
             { id: 14, name: "節制 (The Temperance)", keyword: "和諧溝通、完美協調", svg: SVG_TEMPLATES.temperance,
-              daily_start: "今天的能量流暢而和諧。您擁有極佳的溝通協調能力，非常適合用來跟理念不同的人進行深度對談。",
-              daily_opp: "日中容易在生活作息、或飲食健康上失去平衡，或是原因為一味追求表面和平而壓抑了自己真實的渴望。",
-              daily_advice: "保持身心的流動。多喝水，在待人處事上保持溫和的彈性，您會發現身邊的矛盾都會自然被您化解。",
-              future_start: "未來是一個能量大融通的時期。事業上跨界合作順暢，生活與健康的平衡感也會得到顯著的改善。",
-              future_opp: "中長期要注意生活節奏太過平淡而失去熱情，或是因為過度遷就周圍環境而失去了自己的獨特個性。",
+              daily_start: "今天的能量流暢而和諧。您擁有極佳的溝通協調能力，適合與愛人進行深度的靈魂談心，或解決冷戰中的小隔閡。",
+              daily_opp: "容易在人際往來、或是情感表達上失去平衡，或是因為一味追求表面和平、當濫好人而壓抑了自己真實的渴望。",
+              daily_advice: "保持心靈的流動。待人處事保持溫和與彈性，傾聽對方的委屈，您會發現身邊本來無解的矛盾都會自然消融。",
+              future_start: "未來是一個能量大融通、情感關係甜蜜昇華的時期。事業上跨界合作順暢，伴侶間的默契也將達到全新的高度。",
+              future_opp: "中長期要注意生活節奏或關係發展太過平淡而失去激情，或是因為過度遷就對方而失去了自己的獨特個性。",
               future_advice: "宇宙建議您：尋找心靈的平衡。在任何極端的狀況下都不要偏激，用時間和溫柔的步調去融合一切挑戰。"
             },
             { id: 15, name: "惡魔 (The Devil)", keyword: "覺察盲點、跳出舒適圈", svg: SVG_TEMPLATES.devil,
-              daily_start: "今天的能量充滿了世俗的誘惑與強烈的慾望。這也是提醒您要提高警覺、正視自己內心不健康習慣的日子。",
-              daily_opp: "中午左右容易深陷在懶散、暴食、或是無意義的攀比執念中，被外在的物質慾望牽著鼻子走。",
-              daily_advice: "其實沒有任何人能真正困住您。只要您肯主動跨出那一步，放下心中的貪念，您就立刻重新獲得了自由。",
-              future_start: "未來會面臨巨大的物質誘惑，或是容易沉迷於不健康的感情關係。這是一場關於意志力與誘惑的修行。",
-              future_opp: "中長期最容易因為貪圖一時的舒服與享樂，而甘願留在一成不變、卻毫無靈魂的舒適圈裡自我消耗。",
-              future_advice: "命運提醒您：拿回人生的主導權。主動斬斷對您有害的束縛或癮頭，您將會迎來真正的靈魂解放。"
+              daily_start: "今天的能量充滿強烈的慾望、誘惑與佔有欲。這是一個提醒您要提高警覺、正視自己內心不健康的情感依賴的日子。",
+              daily_opp: "容易深陷在情感執念、肉體慾望中，被不健康的佔有慾與不切實際的幻想牽著鼻子走，自我消耗。",
+              daily_advice: "其實沒有任何人、任何回憶能真正困住您。只要您肯主動跨出那一步，放下心中的貪執，您就重新獲得了自由。",
+              future_start: "未來會面臨巨大的世俗誘惑，或是容易沉迷於一段不健康的孽緣中。這是一場關於意志力與真愛的修行。",
+              future_opp: "中長期最容易原因為貪圖一時的情感依賴或物質舒服，而甘願留在一成不變、卻毫無靈魂的痛苦關係裡自我消耗。",
+              future_advice: "命運提醒您：拿回人生的主導權。主動斬斷對您有害的束縛、有毒的感情或癮頭，您將會迎來真正的靈魂解放。"
             },
             { id: 16, name: "高塔 (The Tower)", keyword: "強行打破、震撼教育", svg: SVG_TEMPLATES.tower,
-              daily_start: "今天生活節奏可能會出現突發的變更。別慌張，這代表不合腳的舊鞋子被命運強行脫掉了。",
-              daily_opp: "中午前後容易原因為突發的消息、或計畫被打亂而感到情緒失控，過度的崩潰只會讓情況變得更糟。",
-              daily_advice: "接受破壞之後的新空間。有些虛妄的泡沫在今天破滅，實則是為您掃清了障礙，讓真正的地基得以展現。",
-              future_start: "未來三個月到半年，生活中的某個板塊（如事業或情感關係）會經歷一場劇烈的、不可逆的結構性重建。",
-              future_opp: "最大的阻礙是在巨變發生時，依然抱殘守缺，試圖去修補已經腐朽的關係或項目，白白浪費精力。",
-              future_advice: "命運請您保持勇敢。所有的崩解都是為了迎來真正穩固的重建，擁抱這個變化，新的人生正在崛起。"
+              daily_start: "生活與情感軌道可能會出現突發的劇變或變更。別慌張，這代表那雙早已不合腳、消耗您的舊鞋子被命運強行脫掉了。",
+              daily_opp: "容易因為突發的消息、或計畫被打亂而感到情緒失控，在親密關係中過度崩潰與爭吵只會讓局勢變得更糟。",
+              daily_advice: "接受破壞之後產生的全新空間。某些虛妄的情感泡沫在今天破滅，實則是宇宙為您掃清了障礙，展現出真誠的地基。",
+              future_start: "未來三個月到半年，生活中的某個板塊（如長期的情感關係或事業結構）會經歷一場劇烈、不可逆的重建。",
+              future_opp: "最大的阻礙是在巨變發生時依然抱殘守缺，試圖去修補已經腐朽、不愛您的關係，白白浪費心力。",
+              future_advice: "命運請您保持勇敢。所有的崩解都是為了迎來真正穩固、健康、真誠的重建，擁抱變化，新的人生正在崛起。"
             },
             { id: 17, name: "星星 (The Star)", keyword: "希望常在、療癒充電", svg: SVG_TEMPLATES.star,
-              daily_start: "清晨醒來，心中升起溫柔的暖意。今天的氣流散發著深層的放鬆與希望，非常適合用來做身心靈的療癒。",
-              daily_opp: "中午時容易因為過度浪漫、或把人事物想得太過完美，而在細節上出現有些脫離現實的幻滅感。",
-              daily_advice: "今天給自己做個完整的身心保養吧。泡個熱水澡、做好保養，保持對未來的樂觀與希望，好運正在路上。",
-              future_start: "未來是一段長期的療癒、休養生息與夢想發芽期。您的生活會逐漸走出陰暗，重現清晰明朗的希望。",
-              future_opp: "中長期要注意不要整天沉溺在不切實際的幻想中，或因為對現狀抱持太多粉紅泡泡而忽視了腳下的泥土。",
-              future_advice: "宇宙指引您：保持純粹與希望。用您內心的光去溫柔地照亮身邊的人，您的樂觀將是您最強大的幸運符。"
+              daily_start: "今天是一天療癒充電日。感情上散發著深沉的放鬆、和諧與希望，適合與伴侶一起聽聽歌、散散步，舒緩緊繃的神經。",
+              daily_opp: "容易因為過度浪漫、或把伴侶和未來想得太過完美，而在一點點現實瑣事上面臨有些脫離現實的幻滅與落差感。",
+              daily_advice: "保持對未來的樂觀與希望。多向愛人或世界展現您最純粹、不設防、溫柔的一面，好運與真愛正在朝您奔來。",
+              future_start: "未來是一段長期的情感療癒、休養生息與夢想發芽期。您的生活會逐漸走出陰暗與情傷，重現清晰明朗的希望。",
+              future_opp: "中長期要注意不要整天沉溺在不切實際的幻想中，或原因為對現狀抱持太多粉紅泡泡而忽視了腳下的泥土與責任。",
+              future_advice: "宇宙指引您：保持純粹與希望。用您內心的光去溫柔地照亮身邊的人，您的樂觀將是您最強大的桃花護身符。"
             },
             { id: 18, name: "月亮 (The Moon)", keyword: "正視內心焦慮、相信直覺", svg: SVG_TEMPLATES.moon,
-              daily_start: "今天身邊可能籠罩著一層看不清的迷霧。上午容易覺得有些迷茫或想得太多，不宜急著下決定。",
-              daily_opp: "中午過後容易被自己幻想出來的焦慮、或是莫名的不安全感給嚇到，在人際關係中顯得有些疑神疑鬼。",
-              daily_advice: "別怕黑夜。遇到看不清的狀況時，摸著黑慢慢走，相信您深處最敏銳的直覺，它會充當您的手電筒。",
-              future_start: "未來一段時間會面臨一段探索潛意識、內在恐懼或人生方向有些不明朗的摸索期。這需要極大的耐心。",
-              future_opp: "中長期最怕因為捕風捉影而與親密的夥伴產生信任嫌隙，或因為害怕失敗而遲遲不敢跨出下一步。",
-              future_advice: "命運指引您：誠實的面對心中的恐懼。當您敢直視陰影時，您就會發現那些怪獸其實只是紙老虎。"
+              daily_start: "今天您心中可能籠罩著一層看不清的情感迷霧。容易覺得有些對愛情感到迷茫或胡思亂想，不宜急著做重大決定。",
+              daily_opp: "容易被自己幻想出來的情感焦慮、或莫名的不安全感給嚇到，在人際與親密關係中顯得有些疑神疑鬼、缺乏信任。",
+              daily_advice: "別怕黑夜。當關係看不清方向時，摸著黑慢慢走，相信您靈魂深處最敏銳的直覺，它會充當您的手電筒。",
+              future_start: "未來一段時間會面臨一段探索情感恐懼、方向有些不明朗的摸索磨合期。這需要雙方付出極大的耐心與傾聽。",
+              future_opp: "中長期最怕原因為捕風捉影而與親密的伴侶產生不可挽回的信任嫌隙，或原因為害怕受傷而遲遲不敢跨出承諾的一步。",
+              future_advice: "命運指引您：誠實的面對心中的焦慮。當您敢直視內在陰影與不安全感時，您就會發現那些怪獸其實只是紙老虎。"
             },
             { id: 19, name: "太陽 (The Sun)", keyword: "光芒四射、順利無阻", svg: SVG_TEMPLATES.sun,
-              daily_start: "運勢極佳的一天！清晨一睜眼就充滿了無限的活力與朝氣。無論做什麼都極其順手，深受大家喜愛。",
-              daily_opp: "中午時段要注意不要因為玩過頭、或是過於驕傲自滿，而忽略了周圍細心人默默付出的感受與需求。",
-              daily_advice: "保持開朗的笑臉。今天只要大方展現您的自信與熱情，您就是全場的焦點，困難都會為您讓路。",
-              future_start: "未來是一段事業情感大放異彩、成果豐碩的黃金期。您的努力會被所有人看見，收穫滿溢的榮耀。",
-              future_opp: "中長期要注意提防光芒太盛而招致旁人的嫉妒，或是因為過度自信而盲目進行高風險的投資冒險。",
-              future_advice: "宇宙大聲宣告：盡情發光吧！保持孩童般的真誠與開朗，您的正面能量會為您吸引來無窮無盡的好運。"
+              daily_start: "桃花運與人緣極佳的一天！清晨一睜眼就充滿了活力。無論是約會、示好還是人際溝通都極其順手，深受大家喜愛。",
+              daily_opp: "要注意不要原因為過於自信、甚至是驕傲自滿，而忽略了伴侶或身邊親密夥伴默默付出的感受與需求。",
+              daily_advice: "保持開朗的笑臉。今天只要大方展現您的熱情、真誠與自信，您就是全場耀眼的焦點，困難都會為您讓路。",
+              future_start: "未來是一段事業與情感大放異彩、愛情甜美開花結果的黃金收穫期。您的努力會被所有人看見，收穫榮耀與認可。",
+              future_opp: "中長期要注意提防光芒太盛而招致旁人的嫉妒，或是原因為在關係中過度強勢而壓抑了伴侶的表達空間。",
+              future_advice: "宇宙大聲宣告：盡情發光吧！保持孩童般的真誠、熱情與開朗，您的正面能量會為您吸引來無窮無盡的好運。"
             },
             { id: 20, name: "審判 (The Judgement)", keyword: "關鍵決定、靈魂覺醒", svg: SVG_TEMPLATES.judgement,
-              daily_start: "今天是一個關鍵的能量轉折點。上午您會突然想通了某些卡關很久的事，有一種靈魂重生的輕鬆感。",
-              daily_opp: "中午左右容易面臨不得不對過去的某些拖延或錯誤買單的時刻，切忌逃避問題，勇敢去面對它。",
-              daily_advice: "是時候把過去積累的包袱通通丟掉了。在關鍵的關卡上，請相信內心深處的召喚，做出最誠實的決定。",
-              future_start: "未來幾個月您會迎來人生的重大審判與轉機。這是一個徹底告別過去、為事業或情感迎來救贖重生的時刻。",
-              future_opp: "中長期要注意原因為害怕改變、或是死守著過去的遺憾和失敗不放，而拒絕了命運號角的第二次邀請。",
-              future_advice: "命運向您宣告：屬於您的重生時刻已到。聽從心靈最真誠的指引，大步邁向為您量身打造的新舞台。"
+              daily_start: "情感關係迎來關鍵的突破與覺醒。您會突然想通了某些卡關很久的感情執念，有一種重生的輕鬆感。",
+              daily_opp: "容易面臨不得不對過去的情感拖延、承諾敷衍或抉擇錯誤買單的時刻，切忌逃避問題，勇敢去面對並解決它。",
+              daily_advice: "是時候把過去積累的情感包袱、遺憾或怨恨通通丟掉了。相信內心深處最真實的聲音，做出不後悔的真誠決定。",
+              future_start: "未來幾個月您會迎來情感或人生方向的重大審判與救贖轉機。這是一個徹底告別過去、為愛重生的神聖時刻。",
+              future_opp: "中長期要注意原因為害怕改變現狀、或是死守著過去死去的感情和遺憾不放，而拒絕了命運號角的第二次邀請。",
+              future_advice: "命運向您宣告：屬於您的重生時刻已到。聽從心靈最真誠的指引，大步邁向為您量身打造的情感與生活新舞台。"
             },
             { id: 21, name: "世界 (The World)", keyword: "圓滿落幕、迎向圓滿", svg: SVG_TEMPLATES.world,
-              daily_start: "今天能量達到了完美的和諧與圓滿。不論是手上的項目、還是與人的關係，都在上午看見了極佳的成果。",
-              daily_opp: "日中要注意不要因為大局已定而顯得有些散漫不思進取，或是沉浸在成功的喜悅中忽略了下一步的鋪墊。",
-              daily_advice: "請為努力前進的自己大聲鼓掌。放鬆呼吸，帶著滿滿的自信，微笑著展開下一階段更精彩的生命旅程。",
-              future_start: "未來半年將會迎來一個重要項目的圓滿收官、或是情感關係達到終極的圓滿。這是一個大吉大利的結局。",
-              future_opp: "中長期最大的危機是安於現狀不求突破，在達到巔峰之後因為害怕走下坡而抗拒開啟全新的探索。",
-              future_advice: "宇宙給予您最深沉的祝福。您已經完成了這個階段的課題，帶著圓滿的智慧與從容，展開下一段旅行吧。"
+              daily_start: "今天的能量達到了完美的和諧與情感圓滿。不論是手上的項目，還是與伴侶的關係，都在今天看見了極佳的成果。",
+              daily_opp: "容易原因為現狀太過安逸而顯得有些不思進取，或者在感情大局已定時忽略了對彼此關係的日常呵護與情趣鋪墊。",
+              daily_advice: "請為努力經營生活的自己大聲鼓掌。帶著滿滿的愛與自信，與愛人攜手，展開下一階段更精彩的生命旅程。",
+              future_start: "未來半年將會迎來一個重要關係的開花結果、或情感達到終極的圓滿。這是一個大吉大利、幸福滿溢的終極結局。",
+              future_opp: "中長期最大的危機是安於現狀不求突破，在達到情感巔峰或事業高點後，原因為害怕未來走下坡而抗拒開啟全新的探索。",
+              future_advice: "宇宙給予您最深沉的祝福。您已經完成了這個階段的情感課題，帶著圓滿的智慧與從容，展開下一段真愛旅行吧。"
             }
         ];
 
-        // 8張時尚神諭卡 (穿搭專屬)
         const ORACLE_CARDS = [
             { id: 101, name: "蜜桃粉紅 (Amanida Pink)", keyword: "柔軟、桃花、春日戀曲", 
               svg: `<g stroke="currentColor" stroke-width="1.2" fill="none"><circle cx="100" cy="100" r="40" fill="#f472b6" fill-opacity="0.2"/><path d="M100 80 C90 60 50 60 50 90 C50 120 100 150 100 150 C100 150 150 120 150 90 C150 60 110 60 100 80 Z" stroke="#ec4899" stroke-width="2"/></g>`, 
-              desc: "能量解讀：溫和、充滿彈性與人情味的一天。適合展現溫柔的一面，容易贏得大家的好人緣和偏愛。",
+              desc: "溫和、充滿彈性與人情味。適合展現溫柔的一面，極易贏得暗戀對象或伴侶的寵愛與靠近。",
               color: "櫻花粉、珍珠米色、淡燕麥色",
               material: "親膚針織、厚雪紡、軟糯羊毛",
               style: "慵懶風微寬鬆毛衣、垂墜感針織長裙、溫柔感連身裙",
@@ -638,16 +588,16 @@
             },
             { id: 102, name: "冷霧鼠尾草綠 (Sage Green)", keyword: "淨化、鬆弛、穩定自我", 
               svg: `<g stroke="currentColor" stroke-width="1.2" fill="none"><rect x="70" y="60" width="60" height="80" rx="30" fill="#34d399" fill-opacity="0.15"/><path d="M100 60 Q90 100 100 140 M100 80 Q110 95 120 100 M100 110 Q85 120 75 125" stroke="#10b981" stroke-width="2"/></g>`, 
-              desc: "能量解讀：需要沉澱、修復疲憊的時刻。避免急功近利，保持呼吸的平穩，讓自己的生活步調慢下來。",
+              desc: "需要沉澱、修復疲憊的時刻。在人際與桃花互動中保持平穩呼吸，不急於求成，自然流露鬆弛感。",
               color: "鼠尾草綠、奶油白、霧感淺綠",
               material: "有機純棉、天然棉麻、柔軟天絲",
-              style: "休閒感排釦亞麻襯衫、寬鬆版型打褶西裝寬褲",
+              style: "風格排釦亞麻襯衫、寬鬆版型打褶西裝寬褲",
               accessory: "極簡天然珍珠項鍊、霧銀色微雕戒指",
               hairstyle: "隨性韓系鯊魚夾半紮髮、自然垂墜空氣感直髮"
             },
             { id: 103, name: "沉穩岩石黑 (Obsidian Black)", keyword: "堅毅、專注、防禦負能量", 
               svg: `<g stroke="currentColor" stroke-width="1.2" fill="none"><polygon points="100,50 140,150 60,150" fill="#4b5563" fill-opacity="0.3" stroke="#111827" stroke-width="2"/><circle cx="100" cy="116" r="15" stroke="#f59e0b"/></g>`, 
-              desc: "能量解讀：今天需要極致專注。你需要像一塊黑曜石，阻隔外在的流言蜚語，低調做好眼前的任務，用實力說話。",
+              desc: "需要極致專注與個人氣場的一天。阻隔外在的流言蜚語或不健康爛桃花騷擾，散發高冷吸引力。",
               color: "冷石黑、木炭灰、極致純黑",
               material: "挺括西裝面料、硬挺皮革、羊毛呢",
               style: "中性風俐落寬肩西裝外套、高腰皮質直筒短裙",
@@ -656,7 +606,7 @@
             },
             { id: 104, name: "旭日暖橙 (Amber Gold)", keyword: "自信、熱情、創意湧現", 
               svg: `<g stroke="currentColor" stroke-width="1.2" fill="none"><circle cx="100" cy="100" r="35" fill="#f59e0b" fill-opacity="0.2"/><line x1="40" y1="100" x2="160" y2="100" stroke="#d97706" stroke-width="2"/></g>`, 
-              desc: "能量解讀：今天你的靈魂在唱歌！亮點多、想法多，適合在眾人面前發表意見，你的熱情可以輕易感染每個人。",
+              desc: "靈魂在唱歌！桃花與社交磁場極度活躍，大方發表想法，您的熱情能瞬間點燃在場所有人的好感度。",
               color: "琥珀暖橘、楓葉紅、暖陽金",
               material: "亮面絲緞、奢華絲絨、金屬細線混紡",
               style: "法式絲質垂墜感襯衫、暖色調高腰傘擺長裙",
@@ -665,7 +615,7 @@
             },
             { id: 105, name: "極地冰霧藍 (Glacier Blue)", keyword: "冷靜、理智、智慧對話", 
               svg: `<g stroke="currentColor" stroke-width="1.2" fill="none"><polygon points="100,40 150,90 100,140 50,90" fill="#60a5fa" fill-opacity="0.15" stroke="#3b82f6" stroke-width="2"/></g>`, 
-              desc: "能量解讀：適合談判、簽約和複雜溝通的一天。保持邏輯嚴密，你的冷靜思考能幫團隊避開看不見的陷阱。",
+              desc: "思緒異常清澈。適合與重要的人或伴侶探討長期生活規劃，平靜與邏輯性能為您迎來高度的尊重。",
               color: "霧霾藍、丹寧藍、冰川淨白",
               material: "水洗牛仔、滑順雪紡、俐落天絲",
               style: "寬鬆落肩丹寧襯衫外套、內搭絲滑白背心、直筒修身單寧褲",
@@ -674,7 +624,7 @@
             },
             { id: 106, name: "紫羅蘭迷夢 (Lavender Purple)", keyword: "神祕、美感、藝術直覺", 
               svg: `<g stroke="currentColor" stroke-width="1.2" fill="none"><circle cx="100" cy="80" r="25" fill="#a78bfa" fill-opacity="0.15"/><path d="M100 110 L100 160" stroke="#8b5cf6" stroke-width="2"/></g>`, 
-              desc: "能量解讀：藝術美感爆棚！今天你的審美與創作靈魂非常敏銳，不論是去美術館還是看場電影，都能得到極大滿足。",
+              desc: "審美靈魂異常敏銳。約會或社交行程極其適合美術館、觀影或聽音樂，這將讓雙方心靈共鳴值瘋狂飆升。",
               color: "淡丁香紫、莫蘭迪紫、深絳紫",
               material: "細柔針織、微透膚歐根紗、浪漫蕾絲",
               style: "法式微透膚澎澎袖短衫、柔軟薰衣草紫開襟毛衣",
@@ -683,7 +633,7 @@
             },
             { id: 107, name: "純白珍珠 (Pure Ivory)", keyword: "簡約、重開機、極簡美學", 
               svg: `<g stroke="currentColor" stroke-width="1.2" fill="none"><ellipse cx="100" cy="100" rx="30" ry="40" fill="#f3f4f6" fill-opacity="0.2" stroke="#f9fafb" stroke-width="2"/></g>`, 
-              desc: "能量解讀：這是一個掃除雜亂的完美日子。將身邊用不到的東西斷捨離，讓腦袋也空下來，你即將重新啟動。",
+              desc: "掃除繁雜舊帳，給感情思維一次重開機的契機。簡約的生活與談吐能讓今日一切不順自然化解。",
               color: "奶白色、象牙白、極簡純白",
               material: "挺闊重磅純棉、絲滑桑蠶絲",
               style: "極簡俐落白色直筒長版洋裝、高階純白純棉圓領T恤搭配休閒短褲",
@@ -692,7 +642,7 @@
             },
             { id: 108, name: "烈焰绯紅 (Crimson Fire)", keyword: "熱誠、果敢、展現領導力", 
               svg: `<g stroke="currentColor" stroke-width="1.2" fill="none"><path d="M100 50 Q130 90 100 150 Q70 90 100 50 Z" fill="#f87171" fill-opacity="0.2" stroke="#ef4444" stroke-width="2"/></g>`, 
-              desc: "能量解讀：別再猶豫，今天就是要主動出擊！拿出你的熱情，去談下那個客戶、去告白，或者去大聲爭取自己的權益。",
+              desc: "拒絕扭捏與等待！今天適合對感情進度或事業目標發起主動攻勢，拿出無懈可擊的自信魅力去贏取勝利。",
               color: "烈焰紅、復古酒紅、珊瑚紅",
               material: "漆皮、高級羊絨、挺括風衣面料",
               style: "雙排釦俐落束腰風衣外套、復古紅色方領針織衫",
@@ -704,9 +654,8 @@
         let currentMode = 'daily';
         let currentPool = [];
         let selectedIndices = [];
-        let flippedCards = [false, false, false];
+        let flippedCards = [];
 
-        // 頁面路由切換
         function navigate(sectionId) {
             ['home', 'reading', 'reveal', 'result', 'encyclopedia', 'deck-view'].forEach(s => {
                 const el = document.getElementById(`sec-${s}`);
@@ -715,15 +664,15 @@
             const targetEl = document.getElementById(`sec-${sectionId}`);
             if (targetEl) targetEl.classList.remove('hidden');
 
-            const crumb = document.getElementById('stage-breadcrumb');
-            if (sectionId === 'home') crumb.innerText = "占卜大廳 ‧ 選擇通道";
-            else if (sectionId === 'reading') crumb.innerText = `自主抽卡 ‧ ${currentMode === 'daily' ? '每日運勢' : currentMode === 'style' ? '風格神諭' : '未來運勢'}`;
-            else if (sectionId === 'reveal') crumb.innerText = "命運法陣 ‧ 準備翻牌";
-            else if (sectionId === 'result') crumb.innerText = "融合解析 ‧ 占卜報告";
-            else if (sectionId === 'encyclopedia') crumb.innerText = "智慧之書 ‧ 探索典籍";
-            else if (sectionId === 'deck-view') crumb.innerText = "牌面圖鑑 ‧ 自由預覽";
+            const headerMeta = document.getElementById('sec-home-header');
+            if (sectionId === 'home') {
+                headerMeta.classList.remove('hidden');
+                updateCosmicMagnetic();
+            } else {
+                headerMeta.classList.add('hidden');
+            }
 
-            document.querySelector('.glass-stage').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            document.querySelector('main').scrollIntoView({ behavior: 'smooth', block: 'start' });
 
             if (sectionId === 'deck-view') {
                 filterGallery('tarot');
@@ -733,54 +682,44 @@
         function initiateReading(mode) {
             currentMode = mode;
             selectedIndices = [];
-            flippedCards = [false, false, false];
+            
+            const targetCount = mode === 'style' ? 1 : 3;
+            flippedCards = Array(targetCount).fill(false);
+            
             navigate('reading');
 
             const headline = document.getElementById('reading-headline');
             const sub = document.getElementById('reading-sub');
             const btnReveal = document.getElementById('btn-reveal');
-            const counterVal = document.getElementById('counter-val');
 
             btnReveal.classList.add('hidden');
             resetSlots();
 
-            // 隨機動態計算並展示宇宙磁場（拒絕恆定100%，多種和諧狀態隨機切換，如引力平衡、混沌共鳴、星海對齊等）
-            updateCosmicMagnetic();
-
             let activeCards = [];
             if (mode === 'daily') {
-                headline.innerText = "每日運勢 ‧ 能量冥想陣";
+                headline.innerText = "今日整體運勢 ‧ 能量冥想陣";
                 sub.innerText = "請靜心，在下方一字排開的古典大阿爾克納塔羅牌中挑選 3 張。";
-                counterVal.innerText = "每日指引";
                 activeCards = [...TAROT_CARDS];
             } else if (mode === 'style') {
                 headline.innerText = "幸運穿搭 ‧ 美學神諭牌陣";
-                sub.innerText = "追尋靈感與和諧。在下方神諭卡中，挑選與今日能量產生共鳴的 3 張牌。";
-                counterVal.innerText = "風格神諭";
+                sub.innerText = "追尋美學與桃花魅力。在下方神諭卡中，挑選與今日能量產生共鳴的 1 張牌。";
                 activeCards = [...ORACLE_CARDS];
             } else if (mode === 'future') {
-                // 未來展望全面升級為大阿爾克納牌池，避免只有8張過於簡單
-                headline.innerText = "未來運勢 ‧ 時空流動星盤";
-                sub.innerText = "中長期趨勢預測。在下方 22 張古典大阿爾克納塔羅牌中，挑選象徵未來的 3 張牌。";
-                counterVal.innerText = "未來展望";
+                headline.innerText = "中長期時空流動星盤 ‧ 三至六個月深層占卜";
+                sub.innerText = "深度解讀未來的感情歸屬、桃花走向與事業格局。請從 22 張古典塔羅中挑選 3 張。";
                 activeCards = [...TAROT_CARDS];
             }
 
-            // 洗牌：確保每次啟動都進行完全隨機打亂，防範使用者記憶卡牌位置
             currentPool = secureShuffle(activeCards);
             renderDeckPool();
             updateCounter();
-
-            // 觸發洗牌視覺特效，讓牌池產生華麗交疊左右穿梭動畫
             triggerShuffleAnimation();
         }
 
-        // 高隨機打亂演算法 (Fisher-Yates)
         function secureShuffle(array) {
             let currentIndex = array.length, randomIndex;
             const newArray = [...array];
             while (currentIndex != 0) {
-                // 揉入毫秒時間戳與系統亂數做高強度隨機
                 randomIndex = Math.floor((Math.random() * 100000 + Date.now()) % currentIndex);
                 currentIndex--;
                 [newArray[currentIndex], newArray[randomIndex]] = [newArray[randomIndex], newArray[currentIndex]];
@@ -788,23 +727,35 @@
             return newArray;
         }
 
-        // 觸發牌池洗牌動畫效果
         function triggerShuffleAnimation() {
-            const cards = document.querySelectorAll('#deck-pool > div');
+            const pool = document.getElementById('deck-pool');
+            const cards = pool.querySelectorAll(':scope > div');
+            if (!cards.length) return;
+            const poolWidth = pool.clientWidth;
+            const centerOfPool = poolWidth / 2;
+
             cards.forEach((card, i) => {
-                // 逐一錯開動畫延遲，營造流暢洗牌波浪感
-                card.classList.add('shuffling-card');
-                card.style.animationDelay = `${(i % 5) * 0.08}s`;
-                // 動態結束後移除 class 防止干擾後續 hover 效果
+                const cardLeft = card.offsetLeft;
+                const cardWidth = card.clientWidth;
+                const cardCenter = cardLeft + cardWidth / 2;
+                const offsetX = centerOfPool - cardCenter;
+                
+                card.style.setProperty('--offset-x', `${offsetX}px`);
+                const randomDrift = (Math.random() - 0.5) * 50; 
+                card.style.setProperty('--offset-x-mixed', `${offsetX + randomDrift}px`);
+                card.style.setProperty('--rot-1', `${(Math.random() - 0.5) * 15}deg`);
+                card.style.setProperty('--rot-2', `${(Math.random() - 0.5) * 35}deg`);
+                card.style.setProperty('--rot-3', `${(Math.random() - 0.5) * 10}deg`);
+
+                card.classList.add('shuffling-mix-card');
                 setTimeout(() => {
-                    card.classList.remove('shuffling-card');
-                }, 1500);
+                    card.classList.remove('shuffling-mix-card');
+                }, 1700);
             });
         }
 
-        // 動態模擬宇宙磁場共鳴狀態
         function updateCosmicMagnetic() {
-            const index = Math.floor(Math.random() * 25) + 75; // 75% - 99%
+            const index = Math.floor(Math.random() * 25) + 75; 
             const states = ["能量共振", "星潮重組", "引力平衡", "光譜對齊", "磁場聚合", "命宿流動"];
             const state = states[Math.floor(Math.random() * states.length)];
             document.getElementById('cosmic-magnetic-val').innerText = `${index}% ${state}`;
@@ -817,7 +768,6 @@
             currentPool.forEach((card, index) => {
                 const cardDiv = document.createElement('div');
                 cardDiv.id = `pool-card-${index}`;
-                // 對齊 Screenshot 2026-06-20 020601.png 的神聖幾何放射線卡背設計
                 cardDiv.className = `flex-shrink-0 w-24 sm:w-32 aspect-[2/3] rounded-2xl border cursor-pointer transform hover:-translate-y-3 hover:shadow-2xl transition-all duration-300 flex flex-col justify-between p-3 relative ${getCardBackClass()}`;
                 
                 cardDiv.innerHTML = getCardBackSVG();
@@ -832,33 +782,19 @@
             return 'bg-gradient-to-br from-slate-950 via-cyan-950 to-purple-950 border-cyan-500/30 hover:border-cyan-400';
         }
 
-        // 完美還原 Screenshot 2026-06-20 020601.png 中精緻的放射線、四角放射星芒與圓點飾邊
         function getCardBackSVG() {
             return `
                 <div class="absolute inset-1 border border-amber-500/10 rounded-xl flex items-center justify-center">
                     <svg class="w-full h-full text-amber-500/40" viewBox="0 0 120 180" fill="none" stroke="currentColor">
-                        <!-- 雙重外飾邊 -->
                         <rect x="6" y="6" width="108" height="168" rx="8" stroke-width="0.8" stroke-dasharray="3 3"/>
                         <rect x="10" y="10" width="100" height="160" rx="6" stroke-width="0.5"/>
-                        <!-- 四角放射太陽芒 -->
-                        <path d="M12 18 L24 24 M12 18 L15 30 M12 18 L26 15" stroke-width="0.6"/>
-                        <path d="M108 18 L96 24 M108 18 L105 30 M108 18 L94 15" stroke-width="0.6"/>
-                        <path d="M12 162 L24 156 M12 162 L15 150 M12 162 L26 165" stroke-width="0.6"/>
-                        <path d="M108 162 L96 156 M108 162 L105 150 M108 162 L94 165" stroke-width="0.6"/>
-                        <!-- 核心主軸：等比例放大放射太陽 -->
                         <g transform="translate(60, 90)">
                             <circle cx="0" cy="0" r="16" stroke-width="1" stroke-dasharray="2 1"/>
                             <circle cx="0" cy="0" r="12" stroke-width="0.8"/>
-                            <!-- 主軸光芒 -->
                             <line x1="0" y1="-16" x2="0" y2="-32" stroke-width="1"/>
                             <line x1="0" y1="16" x2="0" y2="32" stroke-width="1"/>
                             <line x1="-16" y1="0" x2="-32" y2="0" stroke-width="1"/>
                             <line x1="16" y1="0" x2="32" y2="0" stroke-width="1"/>
-                            <!-- 斜向輔助光芒與圓點 -->
-                            <line x1="-11" y1="-11" x2="-23" y2="-23" stroke-width="0.7"/>
-                            <line x1="11" y1="-11" x2="23" y2="-23" stroke-width="0.7"/>
-                            <line x1="-11" y1="11" x2="-23" y2="23" stroke-width="0.7"/>
-                            <line x1="11" y1="11" x2="23" y2="23" stroke-width="0.7"/>
                             <circle cx="0" cy="-36" r="1.5" fill="currentColor"/>
                             <circle cx="0" cy="36" r="1.5" fill="currentColor"/>
                             <circle cx="-36" cy="0" r="1.5" fill="currentColor"/>
@@ -870,7 +806,8 @@
         }
 
         function selectCard(index) {
-            if (selectedIndices.includes(index) || selectedIndices.length >= 3) return;
+            const targetCount = currentMode === 'style' ? 1 : 3;
+            if (selectedIndices.includes(index) || selectedIndices.length >= targetCount) return;
 
             selectedIndices.push(index);
             
@@ -879,17 +816,17 @@
             
             const slotIndex = selectedIndices.length;
             const slotEl = document.getElementById(`slot-${slotIndex}`);
-            slotEl.className = `aspect-[4/3] border rounded-xl flex flex-col items-center justify-center relative overflow-hidden transition-all duration-500 ${getCardBackClass()}`;
+            slotEl.className = `aspect-[2/3] border rounded-xl flex flex-col items-center justify-center relative overflow-hidden transition-all duration-500 ${getCardBackClass()}`;
             slotEl.innerHTML = `
                 <div class="absolute inset-0 flex flex-col items-center justify-center text-amber-500">
                     <span class="text-xl font-bold font-cinzel text-amber-500/40">CARD ${slotIndex}</span>
-                    <span class="text-[10px] text-purple-200 mt-1">能量鎖定 ✓</span>
+                    <span class="text-[10px] text-purple-200 mt-1">已選定 ✓</span>
                 </div>
             `;
 
             updateCounter();
 
-            if (selectedIndices.length === 3) {
+            if (selectedIndices.length === targetCount) {
                 const btnReveal = document.getElementById('btn-reveal');
                 btnReveal.classList.remove('hidden');
                 btnReveal.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -897,24 +834,41 @@
         }
 
         function updateCounter() {
-            document.getElementById('selected-counter').innerText = `已選 ${selectedIndices.length} / 3 張`;
-        }
-
-        function getRomanNum(num) {
-            if (num === 1) return 'Ⅰ';
-            if (num === 2) return 'Ⅱ';
-            if (num === 3) return 'Ⅲ';
-            return num;
+            const targetCount = currentMode === 'style' ? 1 : 3;
+            document.getElementById('selected-counter').innerText = `已選 ${selectedIndices.length} / ${targetCount} 張`;
         }
 
         function resetSlots() {
-            for(let i=1; i<=3; i++) {
-                const el = document.getElementById(`slot-${i}`);
-                el.className = "aspect-[4/3] border border-dashed border-purple-500/30 rounded-xl flex flex-col items-center justify-center text-xs text-purple-400 bg-black/30";
-                let title = "首選：起點";
-                if(i===2) title = "次選：阻礙";
-                if(i===3) title = "終選：啟示";
-                el.innerHTML = `<span class="text-lg mb-0.5">${getRomanNum(i)}</span><span>${title}</span>`;
+            const wrapper = document.getElementById('slots-wrapper');
+            wrapper.innerHTML = '';
+
+            const targetCount = currentMode === 'style' ? 1 : 3;
+            if (targetCount === 1) {
+                wrapper.innerHTML = `
+                    <div class="max-w-xs mx-auto grid grid-cols-1 gap-4 py-4 px-4 bg-purple-950/30 rounded-2xl border border-purple-800/20">
+                        <div id="slot-1" class="aspect-[2/3] border border-dashed border-purple-500/30 rounded-xl flex flex-col items-center justify-center text-xs text-purple-400 bg-black/30">
+                            <span class="text-lg font-cinzel mb-1">Ⅰ</span>
+                            <span>風格開運主星</span>
+                        </div>
+                    </div>
+                `;
+            } else {
+                wrapper.innerHTML = `
+                    <div class="max-w-2xl mx-auto grid grid-cols-3 gap-4 py-4 px-4 bg-purple-950/30 rounded-2xl border border-purple-800/20">
+                        <div id="slot-1" class="aspect-[2/3] border border-dashed border-purple-500/30 rounded-xl flex flex-col items-center justify-center text-xs text-purple-400 bg-black/30">
+                            <span class="text-lg font-cinzel mb-1">Ⅰ</span>
+                            <span>首選：起點</span>
+                        </div>
+                        <div id="slot-2" class="aspect-[2/3] border border-dashed border-purple-500/30 rounded-xl flex flex-col items-center justify-center text-xs text-purple-400 bg-black/30">
+                            <span class="text-lg font-cinzel mb-1">Ⅱ</span>
+                            <span>次選：阻礙</span>
+                        </div>
+                        <div id="slot-3" class="aspect-[2/3] border-2 border-dashed border-purple-500/30 rounded-xl flex flex-col items-center justify-center text-xs text-purple-400 bg-black/30">
+                            <span class="text-lg font-cinzel mb-1">Ⅲ</span>
+                            <span>終選：啟示</span>
+                        </div>
+                    </div>
+                `;
             }
         }
 
@@ -923,7 +877,17 @@
             
             const altar = document.getElementById('altar');
             altar.innerHTML = '';
-            const slotNames = ["【起點能量】", "【核心阻礙】", "【宇宙啟示】"];
+            
+            const targetCount = currentMode === 'style' ? 1 : 3;
+            const slotNames = targetCount === 1 ? ["【幸運之星】"] : ["【起點能量】", "【核心阻礙】", "【宇宙啟示】"];
+
+            if (targetCount === 1) {
+                altar.className = "grid grid-cols-1 gap-6 max-w-xs mx-auto py-4";
+                document.getElementById('reveal-sub-hint').innerText = "點擊下方神諭牌，解鎖您的穿搭色譜。";
+            } else {
+                altar.className = "grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto py-4";
+                document.getElementById('reveal-sub-hint').innerText = "點擊下方橫向排開的卡牌進行翻面，一窺能量本質。";
+            }
 
             selectedIndices.forEach((poolIndex, index) => {
                 const cardData = currentPool[poolIndex];
@@ -942,14 +906,11 @@
                             <!-- 卡面 -->
                             <div class="card-front w-full h-full rounded-2xl border bg-gradient-to-b from-[#130b2e] to-[#04010b] flex flex-col justify-between p-3 ${getCardBorderClass()}">
                                 <div class="text-center text-[8px] text-amber-500/60 tracking-widest font-cinzel">DESTINY DECK</div>
-                                
-                                <!-- 繪製放大且精緻的象徵線圖 -->
                                 <div class="w-full flex justify-center text-amber-400">
-                                    <svg class="w-24 h-24" viewBox="0 0 200 200">
+                                    <svg class="w-28 h-28" viewBox="0 0 200 200">
                                         ${cardData.svg}
                                     </svg>
                                 </div>
-
                                 <div class="text-center space-y-0.5">
                                     <h4 class="text-xs font-bold text-amber-300">${cardData.name}</h4>
                                     <p class="text-[9px] text-purple-200/50 truncate">${cardData.keyword}</p>
@@ -970,8 +931,8 @@
         }
 
         function getCardBorderClass() {
-            if(currentMode === 'daily') return 'border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.2)]';
-            if(currentMode === 'style') return 'border-pink-500/50 shadow-[0_0_15px_rgba(219,39,119,0.2)]';
+            if (currentMode === 'daily') return 'border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.2)]';
+            if (currentMode === 'style') return 'border-pink-500/50 shadow-[0_0_15px_rgba(219,39,119,0.2)]';
             return 'border-cyan-500/50 shadow-[0_0_15px_rgba(6,182,212,0.2)]';
         }
 
@@ -991,51 +952,66 @@
         }
 
         async function generateDeepInterpretation() {
-            const card1 = currentPool[selectedIndices[0]];
-            const card2 = currentPool[selectedIndices[1]];
-            const card3 = currentPool[selectedIndices[2]];
-
-            // 顯示神祕的星空加載遮罩
             const overlay = document.getElementById('loading-overlay');
             const loadText = document.getElementById('loading-text');
             overlay.classList.remove('hidden');
 
-            loadText.innerText = "正在召喚星雲意識，解讀您的獨特牌面...";
+            const card1 = currentPool[selectedIndices[0]];
+            const card2 = currentMode !== 'style' ? currentPool[selectedIndices[1]] : null;
+            const card3 = currentMode !== 'style' ? currentPool[selectedIndices[2]] : null;
 
-            // 使用 Gemini API 智能塔羅導師進行實時解讀 (保證完全隨機且不重複提及牌面名字)
-            const prompt = `您是一位擁有30年心靈諮商與神祕學占卜經驗的塔羅牌與神諭大師。
-            現在，使用者進行了一場【${currentMode === 'daily' ? '今日整體運勢' : currentMode === 'style' ? '幸運色與穿搭風格' : '中長期未來半年展望'}】的占卜。
-            他們抽到的三張牌卡是：
-            第一張：${card1.name} (象徵：${card1.keyword})
-            第二張：${card2.name} (象徵：${card2.keyword})
-            第三張：${card3.name} (象徵：${card3.keyword})
+            let loadSteps = [
+                "正在召喚星雲意識，連結您的時空軌跡...",
+                "正在校準桃花星盤，提取深層感情代碼...",
+                "正在整合生命趨勢與阻礙對策...",
+                "正在解讀終極契機與宇宙指引..."
+            ];
+            let stepIdx = 0;
+            loadText.innerText = loadSteps[stepIdx];
+            const loadInterval = setInterval(() => {
+                stepIdx = (stepIdx + 1) % loadSteps.length;
+                loadText.innerText = loadSteps[stepIdx];
+            }, 1200);
 
-            請遵循以下最嚴格的輸出規則：
-            1. **絕對不要在生成的報告中重複提及任何一張牌卡的名稱**。使用者已經在卡面上看到了名字，請直接把牌的核心能量、意境、指引，編織成完全白話、親切、極好理解的生活情境說明。
-            2. 確保以下三個欄位的內容**完全不重複**：
-               - "summary": 綜合能量整合流動。不重提牌名，融合第一張到第三張的能量。
-               - "obstacle": 核心阻礙或提醒。專注於第二張牌帶來的心理或環境卡關、盲點（不要和summary或advice有重複的句子）。
-               - "advice": 宇宙專屬行動建議。專注於第三張牌提供的極其具體、可行、親切的生活建議。
+            let prompt = `您是一位擁有30年情感諮商與神祕學占卜經驗的塔羅牌與神諭大師。
+            當前使用者進行了【${currentMode === 'daily' ? '今日整體運勢' : currentMode === 'style' ? '幸運色與風格（抽一張牌）' : '中長期未來三至六個月情感與生活發展（極詳細五板塊解讀）'}】占卜。
             
-            如果占卜模式是 style (幸運色穿搭)，請在 JSON 中新增 "style_info" 物件，包含：
-            "color": "開運顏色建议", "material": "推薦材质", "style": "推薦衣物款式", "accessory": "推薦配飾", "hairstyle": "推薦髮型"。
+            抽到的卡牌如下：
+            第一張：${card1.name} (關鍵詞：${card1.keyword})
+            ${card2 ? `第二張：${card2.name} (關鍵詞：${card2.keyword})` : ''}
+            ${card3 ? `第三張：${card3.name} (關鍵詞：${card3.keyword})` : ''}
 
-            請以繁體中文 (zh-TW) 寫作。只返回符合以下 JSON Schema 的格式：
+            請嚴格遵守以下輸出與排版指南：
+            1. **絕對不要在任何文字解說中重複提及卡牌名稱**（如：因為女祭司代表、愚者暗示等）。直接把牌卡在關係和生活中的精神核心，化為極好懂、口語溫柔的情境解析。
+            2. 確保段落絕不重疊。
+            3. 如果占卜模式是【今日整體運勢】，解說必須簡單、好理解、自然流暢，不一定每天都有刻意的「阻礙」或是限制；若今天整體牌勢極佳，就直接給予積極溫馨的開運祝福。除非抽出的牌中包含強烈的社交、伴侶關係桃花暗示，否則不用大篇幅描寫感情。
+            4. 所有的回答中**絕對不可以出現任何與「特定時間段/中午前後/下午/晚上」等具體時刻相關的描述**。
+            5. 若模式為 future (中長期)，您需要填滿 "future_blocks" 中詳細的5大核心版塊（包含情感桃花宿命、事業發展格局、內在自我覺醒、面臨關卡阻礙、開運行動方針）。
+            6. 如果占卜模式是 style (幸運色穿搭)，請在 JSON 中新增 "style_info" 物件。
+            7. **絕對不要在任何文字內容的開頭附帶標題前綴、類別標籤或冒號**（例如在 future_blocks 的 romance 屬性值中，不要寫「情感桃花宿命：...」、「感情：...」或「桃花宿命線：...」等廢話；在 summary、obstacle、advice 屬性中亦同）。請直接從最純粹的解說內容本身開始寫起。
+
+            請以繁體中文 (zh-TW) 撰寫，僅返回符合以下 schema 的 JSON：
             {
-              "summary": "...",
-              "obstacle": "...",
-              "advice": "...",
+              "summary": "每日綜合能量整合(非長期模式時填寫，文字白話柔和，今日運勢簡短直接)",
+              "obstacle": "提醒或平穩開運方向(非長期模式時填寫，可為空字串或寫下如何延續今日好運，絕對不要寫特定時間段詞彙)",
+              "advice": "宇宙專屬行動建議(非長期模式時填寫，可為空字串)",
+              "future_blocks": {
+                "romance": "深度桃花宿命分析(不少於100字)",
+                "career": "事業格局與財運佈局(不少於100字)",
+                "growth": "內在蛻變與心靈指引(不少於100字)",
+                "warning": "命宿盲點與時空挑戰(不少於100字)",
+                "action": "宇宙指向：終極開運行動方案(不少於100字)"
+              },
               "style_info": {
-                 "color": "...",
-                 "material": "...",
-                 "style": "...",
-                 "accessory": "...",
-                 "hairstyle": "..."
+                 "color": "開運顏色建议",
+                 "material": "推薦材质",
+                 "style": "推薦衣物款式",
+                 "accessory": "推薦配飾",
+                 "hairstyle": "推薦髮型"
               }
             }`;
 
             try {
-                // 異步連接 Gemini 3 Flash model (apiKey為空字串，Canvas系統會自動代入金鑰)
                 const apiKey = "";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
                 
@@ -1052,6 +1028,16 @@
                                     "summary": { "type": "STRING" },
                                     "obstacle": { "type": "STRING" },
                                     "advice": { "type": "STRING" },
+                                    "future_blocks": {
+                                        "type": "OBJECT",
+                                        "properties": {
+                                            "romance": { "type": "STRING" },
+                                            "career": { "type": "STRING" },
+                                            "growth": { "type": "STRING" },
+                                            "warning": { "type": "STRING" },
+                                            "action": { "type": "STRING" }
+                                        }
+                                    },
                                     "style_info": {
                                         "type": "OBJECT",
                                         "properties": {
@@ -1063,117 +1049,232 @@
                                         }
                                     }
                                 },
-                                "required": ["summary", "obstacle", "advice"]
+                                "required": ["summary"]
                             }
                         }
                     })
                 });
 
-                if (!response.ok) throw new Error("API call unsuccessful");
+                clearInterval(loadInterval);
+                if (!response.ok) throw new Error("API failed");
                 const result = await response.json();
                 const data = JSON.parse(result.candidates[0].content.parts[0].text);
 
-                // 將 AI 生成的完美文本渲染到畫面上
                 renderResultView(data, card1, card2, card3);
 
             } catch (error) {
-                console.warn("AI generation failed, applying high-quality distinct local database...", error);
-                // 離線本地完美備用機制：保證三個板塊絕不重複
+                clearInterval(loadInterval);
+                console.warn("AI generation offline/failed, trigger local dynamic interpretation database...", error);
                 generateLocalFallback(card1, card2, card3);
             } finally {
                 overlay.classList.add('hidden');
             }
         }
 
-        // 渲染解析畫面
         function renderResultView(data, card1, card2, card3) {
             navigate('result');
 
-            // 橫式左側卡片縮小回顧
+            // Render miniature Card reviews on Left/Top
             const reviewContainer = document.getElementById('review-cards');
-            reviewContainer.innerHTML = [card1, card2, card3].map((c, i) => `
-                <div class="bg-purple-950/40 p-2 border border-purple-800/40 rounded-xl text-center space-y-1">
-                    <span class="text-[9px] text-amber-500 font-bold block uppercase tracking-wider">Slot ${i+1}</span>
-                    <span class="text-xs font-bold text-purple-100 block truncate">${c.name.split(' ')[0]}</span>
-                    <span class="text-[8px] text-purple-300/60 block truncate">${c.keyword.split('、')[0]}</span>
-                </div>
-            `).join('');
+            if (reviewContainer) {
+                reviewContainer.innerHTML = '';
+                const reviewList = card2 ? [card1, card2, card3] : [card1];
+                reviewContainer.className = reviewList.length === 1 ? "grid grid-cols-1 max-w-[150px] mx-auto mb-6 text-center" : "grid grid-cols-3 gap-4 max-w-md mx-auto mb-6 text-center";
+                reviewContainer.innerHTML = reviewList.map((c, i) => `
+                    <div class="glass-panel p-2 border border-purple-800/40 rounded-xl text-center">
+                        <span class="text-[9px] text-amber-500 font-bold block uppercase tracking-wider">Slot ${i+1}</span>
+                        <span class="text-xs font-bold text-purple-100 block truncate">${c.name.split(' ')[0]}</span>
+                    </div>
+                `).join('');
+            }
 
-            document.getElementById('report-summary').innerText = data.summary;
-            document.getElementById('report-opp').innerText = data.obstacle;
-            document.getElementById('report-advice').innerText = data.advice;
+            const resultLayout = document.getElementById('result-layout-container');
+            if (resultLayout) {
+                resultLayout.innerHTML = '';
+                
+                if (currentMode === 'style') {
+                    // 幸運色與風格：抽一張，呈現最詳細的穿搭與款式清單
+                    const info = data.style_info || {
+                        color: card1.color || "櫻花粉、珍珠米色、淡燕麥色",
+                        material: card1.material || "親膚針織、厚雪紡、軟糯羊毛",
+                        style: card1.style || "慵懶風微寬鬆毛衣、垂墜感針織長裙",
+                        accessory: card1.accessory || "粉水晶單珠手鍊、玫瑰金小耳釘",
+                        hairstyle: card1.hairstyle || "蓬鬆浪漫法式波浪捲、溫柔低馬尾"
+                    };
+                    
+                    resultLayout.innerHTML = `
+                        <div class="p-6 bg-purple-950/40 rounded-2xl border border-purple-800/30 space-y-4">
+                            <h3 class="text-lg font-bold text-amber-300 flex items-center gap-2">
+                                <span>🎨</span> 能量導引美學
+                            </h3>
+                            <p class="text-purple-100/90 leading-loose text-justify">${data.summary || card1.desc}</p>
+                        </div>
 
-            const detailContainer = document.getElementById('detail-box-container');
-            if (currentMode === 'style' && data.style_info) {
-                detailContainer.classList.remove('hidden');
-                detailContainer.innerHTML = `
-                    <div class="p-5 bg-gradient-to-r from-pink-950/50 to-purple-950/50 rounded-2xl border border-pink-500/30 space-y-3">
-                        <h4 class="text-sm font-bold text-pink-300 flex items-center gap-2">
-                            <span>👗</span> 今日幸運穿搭指南 (依據首選能量推薦)
-                        </h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-purple-200/90 leading-relaxed">
-                            <div class="p-2.5 bg-black/20 rounded-xl border border-pink-500/10">
-                                <span class="font-bold text-pink-400 block mb-1">🎨 推薦開運顏色：</span>
-                                <span>${data.style_info.color || "玫瑰粉、象牙白"}</span>
-                            </div>
-                            <div class="p-2.5 bg-black/20 rounded-xl border border-pink-500/10">
-                                <span class="font-bold text-pink-400 block mb-1">🌿 推薦服飾材質：</span>
-                                <span>${data.style_info.material || "舒適針織面料"}</span>
-                            </div>
-                            <div class="p-2.5 bg-black/20 rounded-xl border border-pink-500/10">
-                                <span class="font-bold text-pink-400 block mb-1">🧥 推薦衣物款式：</span>
-                                <span>${data.style_info.style || "簡約溫柔套裝"}</span>
-                            </div>
-                            <div class="p-2.5 bg-black/20 rounded-xl border border-pink-500/10">
-                                <span class="font-bold text-pink-400 block mb-1">💍 開運配飾：</span>
-                                <span>${data.style_info.accessory || "細緻珍珠耳環"}</span>
-                            </div>
-                            <div class="p-2.5 bg-black/20 rounded-xl border border-pink-500/10 md:col-span-2">
-                                <span class="font-bold text-pink-400 block mb-1">💇 推薦髮型：</span>
-                                <span>${data.style_info.hairstyle || "微捲半紮公主頭"}</span>
+                        <div class="p-6 bg-purple-950/40 rounded-2xl border border-pink-500/30 space-y-4">
+                            <h3 class="text-lg font-bold text-pink-300 flex items-center gap-2">
+                                <span>👗</span> 穿搭開運整合方案
+                            </h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-purple-200">
+                                <div class="p-3 bg-purple-900/30 rounded-xl border border-purple-800/30">
+                                    <strong class="text-amber-400 block mb-1">✨ 開運顏色 (Colors)</strong>
+                                    <span>${info.color}</span>
+                                </div>
+                                <div class="p-3 bg-purple-900/30 rounded-xl border border-purple-800/30">
+                                    <strong class="text-amber-400 block mb-1">🧶 推薦材質 (Material)</strong>
+                                    <span>${info.material}</span>
+                                </div>
+                                <div class="p-3 bg-purple-900/30 rounded-xl border border-purple-800/30">
+                                    <strong class="text-amber-400 block mb-1">👚 款式搭配 (Tops & Bottoms)</strong>
+                                    <span>${info.style}</span>
+                                </div>
+                                <div class="p-3 bg-purple-900/30 rounded-xl border border-purple-800/30">
+                                    <strong class="text-amber-400 block mb-1">💍 專屬配飾 (Accessories)</strong>
+                                    <span>${info.accessory}</span>
+                                </div>
+                                <div class="p-3 bg-purple-900/30 rounded-xl border border-purple-800/30 sm:col-span-2">
+                                    <strong class="text-amber-400 block mb-1">💇 髮型指引 (Hairstyles)</strong>
+                                    <span>${info.hairstyle}</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
-            } else {
-                detailContainer.classList.add('hidden');
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="p-6 bg-purple-950/40 rounded-2xl border border-purple-800/30">
+                                <h3 class="text-base font-bold text-pink-300 mb-3 flex items-center gap-2">
+                                    <span>⚖️</span> 契機與內在阻礙
+                                </h3>
+                                <p class="text-purple-200/90 leading-relaxed text-sm text-justify">${data.obstacle || "今日能量流通順利，保持當前的放鬆心態即是最好。"}</p>
+                            </div>
+                            <div class="p-6 bg-purple-950/40 rounded-2xl border border-purple-800/30">
+                                <h3 class="text-base font-bold text-cyan-300 mb-3 flex items-center gap-2">
+                                    <span>🕯️</span> 宇宙給予您的具體建議
+                                </h3>
+                                <p class="text-purple-200/90 leading-relaxed text-sm text-justify">${data.advice || "順應自己的直覺搭配，穿出最自信的態度。"}</p>
+                            </div>
+                        </div>
+                    `;
+                } else if (currentMode === 'future') {
+                    // 中長期未來展望：呈現 5 大極細維度分塊
+                    const blocks = data.future_blocks || getLocalFutureBlocks(card1, card2, card3);
+                    resultLayout.innerHTML = `
+                        <div class="p-6 bg-purple-950/40 rounded-2xl border border-amber-500/30 space-y-3">
+                            <h3 class="text-lg font-bold text-amber-300 flex items-center gap-2">
+                                <span>💖</span> 情感桃花宿命線
+                            </h3>
+                            <p class="text-purple-100/95 leading-loose text-justify">${blocks.romance}</p>
+                        </div>
+
+                        <div class="p-6 bg-purple-950/40 rounded-2xl border border-purple-800/30 space-y-3">
+                            <h3 class="text-lg font-bold text-cyan-300 flex items-center gap-2">
+                                <span>💼</span> 事業格局與財運佈局
+                            </h3>
+                            <p class="text-purple-200/95 leading-relaxed text-justify">${blocks.career}</p>
+                        </div>
+
+                        <div class="p-6 bg-purple-950/40 rounded-2xl border border-purple-800/30 space-y-3">
+                            <h3 class="text-lg font-bold text-purple-300 flex items-center gap-2">
+                                <span>🌱</span> 內在成長與心靈蛻變
+                            </h3>
+                            <p class="text-purple-200/95 leading-relaxed text-justify">${blocks.growth}</p>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="p-6 bg-purple-950/40 rounded-2xl border border-pink-500/30">
+                                <h3 class="text-base font-bold text-pink-300 mb-3 flex items-center gap-2">
+                                    <span>⚠️</span> 命宿盲點與時空阻礙
+                                </h3>
+                                <p class="text-purple-200/90 leading-relaxed text-sm text-justify">${blocks.warning}</p>
+                            </div>
+                            <div class="p-6 bg-purple-950/40 rounded-2xl border border-cyan-500/30">
+                                <h3 class="text-base font-bold text-cyan-300 mb-3 flex items-center gap-2">
+                                    <span>🧭</span> 宇宙指南：開運行動方針
+                                </h3>
+                                <p class="text-purple-200/90 leading-relaxed text-sm text-justify">${blocks.action}</p>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // 今日整體運勢：呈現極其清爽、白話、不強制拆分成死板兩大欄的版面
+                    const hasOptionalBlocks = (data.obstacle && data.obstacle.trim() !== "") || (data.advice && data.advice.trim() !== "");
+                    
+                    let extraBlocksHTML = "";
+                    if (hasOptionalBlocks) {
+                        extraBlocksHTML = `
+                            <div class="grid md:grid-cols-2 gap-6 mt-6">
+                                ${data.obstacle && data.obstacle.trim() !== "" ? `
+                                    <div class="p-5 bg-purple-900/20 rounded-xl border border-purple-900/40">
+                                        <h4 class="text-sm font-bold text-pink-300 mb-2 flex items-center gap-1.5">
+                                            <span>💡</span> 平穩提醒
+                                        </h4>
+                                        <p class="text-purple-200/90 leading-relaxed text-xs text-justify">${data.obstacle}</p>
+                                    </div>
+                                ` : ''}
+                                ${data.advice && data.advice.trim() !== "" ? `
+                                    <div class="p-5 bg-purple-900/20 rounded-xl border border-purple-900/40">
+                                        <h4 class="text-sm font-bold text-cyan-300 mb-2 flex items-center gap-1.5">
+                                            <span>🧭</span> 宇宙行動方向
+                                        </h4>
+                                        <p class="text-purple-200/90 leading-relaxed text-xs text-justify">${data.advice}</p>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    }
+
+                    resultLayout.innerHTML = `
+                        <div class="p-6 bg-purple-950/40 rounded-2xl border border-purple-800/30 space-y-4">
+                            <h3 class="text-lg font-bold text-amber-300 flex items-center gap-2">
+                                <span>📜</span> 今日能量流動指引
+                            </h3>
+                            <p class="text-purple-100/95 leading-loose text-justify text-sm sm:text-base">${data.summary}</p>
+                        </div>
+                        ${extraBlocksHTML}
+                    `;
+                }
             }
         }
 
-        // 離線精緻備用引擎：保證三個區塊文本不重複
         function generateLocalFallback(card1, card2, card3) {
-            let summaryText = "";
-            let oppText = "";
-            let adviceText = "";
-
-            if (currentMode === 'daily') {
-                summaryText = `在今天的能量波動中，${card1.daily_start} 這是引領你出發的北極星。雖然前進的途中會有些許微光引導，但務必記得以靜制動。`;
-                oppText = `提醒與阻礙：${card2.daily_opp} 請留意中午前後容易受外界干擾的心態，及時調整步伐。`;
-                adviceText = `宇宙建議你：${card3.daily_advice}。只要你能遵照這個指引，傍晚之後阻礙自會迎刃而解。`;
+            let fallbackData = {};
+            
+            if (currentMode === 'future') {
+                const b = getLocalFutureBlocks(card1, card2, card3);
+                fallbackData = {
+                    future_blocks: b,
+                    summary: "", obstacle: "", advice: ""
+                };
             } else if (currentMode === 'style') {
-                summaryText = `今日時尚神諭卡導向：你今天的外在能量呈現「${card1.keyword}」的和諧本質。穿戴適合這種色調的單品將能加強氣場。`;
-                oppText = `搭配雷區：中午過後需注意不要過度裝扮，或選擇了不舒服的衣服，這會壓制你原本的自信。`;
-                adviceText = `${card1.desc}`;
-            } else { // future
-                summaryText = `中長期生命圖景：在未來半年內，${card1.future_start} 這是你個人框架重組、邁向新里程碑的重要前奏。`;
-                oppText = `核心難題：${card2.future_opp} 留意這段時間可能會產生的逃避執念，不要死守已經失去溫度的舊習慣。`;
-                adviceText = `宇宙建議你：${card3.future_advice}。耐心深耕，中長期的喜悅成果就在不遠處。`;
+                fallbackData = {
+                    summary: card1.desc,
+                    obstacle: "注意避免全身色彩過於暗沉混亂，這容易使氣色與人緣魅力大打折扣。",
+                    advice: "放鬆心情，保持微笑，幸運自會降臨。",
+                    style_info: {
+                        color: card1.color,
+                        material: card1.material,
+                        style: card1.style,
+                        accessory: card1.accessory,
+                        hairstyle: card1.hairstyle
+                    }
+                };
+            } else {
+                fallbackData = {
+                    summary: `今天您的能量狀態非常流暢和諧。無論您打算推展計畫還是享受日常，都能感受到一股支持您的隱形助力。今天人緣磁場很不錯，如果有期待的社交約會，大方展現微笑即可，一切都會自然發展。`,
+                    obstacle: `今日沒有太大的阻礙！只要順其自然，保持平常心，就能讓一整天都順利度過。`,
+                    advice: `多給自己一點放鬆的片刻。喝杯好喝的茶、聽聽音樂，把這份和諧的能量延續下去，就是今天最完美的開運秘方。`
+                };
             }
 
-            const fallbackData = {
-                summary: summaryText,
-                obstacle: oppText,
-                advice: adviceText,
-                style_info: currentMode === 'style' ? {
-                    color: card1.color,
-                    material: card1.material,
-                    style: card1.style,
-                    accessory: card1.accessory,
-                    hairstyle: card1.hairstyle
-                } : null
-            };
-
             renderResultView(fallbackData, card1, card2, card3);
+        }
+
+        function getLocalFutureBlocks(card1, card2, card3) {
+            return {
+                romance: `中長期的情愛旅途將在一股大膽、探索與溫和的重啟能量中前行。單身者極易在未來的旅行、異地或全新社交場合遇見志趣投合、甚至讓您深深著迷的交往對象。有伴侶的人，雙方的關係正在往一個更有承諾、更深信賴的境界推進，精神共鳴度極佳。`,
+                career: `未來的幾個月，您的工作版圖將經歷一場深度的資源整理與整合。您之前所播種的創意與想法，都將在對的時間迎來圓滿的回報。資金流向順暢，也容易在合約、合夥和跨界協調上大展宏圖。`,
+                growth: `您將經歷一場從浮躁走向沉穩的蛻變。您開始懂得如何溫柔地面對自己的短處與不安全感，學會相信靈魂深處最敏銳的第六感，內在力量正緩慢且穩定地昇華。`,
+                warning: `請高度提防因為一味追求表面上的和平，或者原因為害怕受傷而把內心世界封閉起來的自閉傾向。發展中切忌因一時的情感盲目或衝動做下不負責任的許諾。`,
+                action: `宇宙叮嚀您，真正的勇氣是和諧與溫柔的。保持內心價值觀的一致，多去包容和理解身邊的人，您越溫柔，未來在您身邊匯聚的好運桃花就越強大。`
+            };
         }
 
         function filterGallery(type) {
@@ -1189,11 +1290,8 @@
                 }
             });
 
-            let listToRender = [];
-            if (type === 'tarot') listToRender = TAROT_CARDS;
-            else listToRender = ORACLE_CARDS;
-
-            listToRender.forEach(card => {
+            const list = type === 'tarot' ? TAROT_CARDS : ORACLE_CARDS;
+            list.forEach(card => {
                 const cardDiv = document.createElement('div');
                 cardDiv.className = "bg-purple-950/40 border border-purple-900/50 rounded-xl p-3 flex flex-col items-center text-center space-y-2 hover:border-amber-500/30 transition-all duration-300";
                 cardDiv.innerHTML = `
