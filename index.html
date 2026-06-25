@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>神秘之門 - 互動塔羅與神諭占卜平台</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Noto+Serif+TC:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Noto Serif TC', serif;
@@ -18,6 +18,7 @@
         .font-cinzel {
             font-family: 'Cinzel', serif;
         }
+        /* 霧面玻璃效果 */
         .glass-panel {
             background: rgba(12, 6, 28, 0.85);
             backdrop-filter: blur(16px);
@@ -26,6 +27,7 @@
                 0 20px 50px rgba(0, 0, 0, 0.65),
                 0 0 30px rgba(168, 85, 247, 0.15);
         }
+        /* 卡牌翻轉特效 */
         .card-perspective {
             perspective: 1200px;
         }
@@ -48,6 +50,7 @@
         .card-front {
             transform: rotateY(180deg);
         }
+        /* 星辰微光動畫 */
         @keyframes twinkle {
             0%, 100% { opacity: 0.2; transform: scale(0.8); }
             50% { opacity: 1; transform: scale(1.2); }
@@ -59,6 +62,9 @@
             animation: twinkle 4s infinite ease-in-out;
             pointer-events: none;
         }
+        
+        /* */
+        /* 卡牌聚攏洗牌動畫 */
         @keyframes cardGatherMix {
             0% {
                 transform: translate(0, 0) scale(1) rotate(0deg);
@@ -86,6 +92,7 @@
         .shuffling-mix-card {
             animation: cardGatherMix 1.7s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
+        /* 自訂高級捲軸 */
         .custom-scroll::-webkit-scrollbar {
             height: 6px;
         }
@@ -104,8 +111,10 @@
 </head>
 <body class="text-purple-100 min-h-screen flex flex-col justify-between relative overflow-x-hidden">
 
+    <!-- 動態星空閃爍裝飾層 -->
     <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none" id="sparkle-layer"></div>
 
+    <!-- 占卜等待星軌載入遮罩 -->
     <div id="loading-overlay" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex flex-col items-center justify-center gap-6 hidden">
         <div class="relative w-40 h-40 flex items-center justify-center">
             <div class="absolute inset-0 rounded-full border-4 border-dashed border-purple-500/30 animate-spin" style="animation-duration: 8s;"></div>
@@ -122,6 +131,8 @@
         </div>
     </div>
 
+    <!-- -->
+    <!-- 頂部透明導航 -->
     <header class="relative z-10 border-b border-purple-900/40 bg-black/50 backdrop-blur-md">
         <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div class="flex items-center gap-3 cursor-pointer" onclick="navigate('home')">
@@ -144,10 +155,12 @@
         </div>
     </header>
 
+    <!-- 橫向懸浮核心視窗 -->
     <main class="flex-grow flex items-center justify-center relative z-10 px-4 py-8">
         
         <div class="w-full max-w-5xl glass-panel rounded-3xl p-6 md:p-8 flex flex-col justify-between transition-all duration-500 relative overflow-hidden">
             
+            <!-- 僅在「占卜大廳首頁」展示的探索狀態列 -->
             <div id="sec-home-header" class="space-y-4">
                 <div class="flex justify-between items-center border-b border-purple-900/40 pb-4 mb-6 text-xs sm:text-sm text-purple-300">
                     <div class="flex items-center gap-2">
@@ -171,6 +184,7 @@
                     </p>
                 </div>
 
+                <!-- 橫向排列的占卜選擇，中長期運勢放中間 (主要推薦) -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 max-w-4xl mx-auto items-stretch">
                     
                     <!-- 1. 今日整體運勢 (左) -->
@@ -270,7 +284,7 @@
                     <div class="h-0.5 w-16 bg-gradient-to-r from-amber-500 to-transparent mx-auto mt-2"></div>
                 </div>
 
-                <!-- 縮小版的卡面回顧容器（修復 TypeError: Cannot set properties of null 錯誤） -->
+                <!-- 縮小版的卡面回顧容器 -->
                 <div id="review-cards" class="grid grid-cols-3 gap-4 max-w-md mx-auto mb-6 text-center"></div>
 
                 <div id="result-layout-container" class="space-y-6">
@@ -301,7 +315,7 @@
                     <div class="glass-panel p-5 rounded-2xl border border-purple-800/20 space-y-3">
                         <h4 class="text-md font-bold text-pink-300 border-b border-purple-900 pb-2">風格神諭卡與美學能量引導</h4>
                         <p class="text-xs text-purple-200/80 leading-relaxed">
-                            與架構嚴謹的古典塔羅不同，神諭卡更富有美感和流動的直覺能量。它不著重於嚴厲的預測或規則，而是為當下疲倦、渴望桃花滋養的心靈提供和諧的美學支持。透過色彩、材質暗示，讓您由內而外散發獨特的吸引力磁場。
+                            與架構嚴謹的古典塔羅不同，神諭卡更富有美感與流動的直覺能量。它不著重於嚴厲的預測或規則，而是為當下疲倦、渴望桃花滋養的心靈提供和諧的美學支持。透過色彩、材質暗示，讓您由內而外散發獨特的吸引力磁場。
                         </p>
                     </div>
                 </div>
@@ -336,7 +350,9 @@
         <p>© 2026 Mystic Gate All Rights Reserved. 個人專屬神秘命運殿堂</p>
     </footer>
 
+    <!-- ================= 系統數據與邏輯處理 ================= -->
     <script>
+        // --- 初始化星空微光 ---
         window.onload = function() {
             createSparkles();
             updateCosmicMagnetic();
@@ -372,6 +388,7 @@
             return num;
         }
 
+        // --- 卡牌 SVG 與語意大數據庫 ---
         const SVG_TEMPLATES = {
             fool: `<g stroke="currentColor" stroke-width="1.2" fill="none"><circle cx="100" cy="110" r="15" stroke-dasharray="3 3"/><path d="M60 160 L100 110 L140 160"/><line x1="100" y1="110" x2="100" y2="40"/><circle cx="100" cy="40" r="6" fill="currentColor"/><path d="M100 60 Q120 70 100 80 Q80 90 100 100" stroke-dasharray="2 2"/></g>`,
             priestess: `<g stroke="currentColor" stroke-width="1.2" fill="none"><line x1="60" y1="40" x2="60" y2="160" stroke-width="2"/><line x1="140" y1="40" x2="140" y2="160" stroke-width="2"/><circle cx="100" cy="70" r="22" fill="currentColor" fill-opacity="0.1"/><path d="M100 48 A22 22 0 0 0 100 92 Z" fill="currentColor"/><rect x="80" y="110" width="40" height="25" rx="2"/></g>`,
@@ -399,127 +416,127 @@
 
         const TAROT_CARDS = [
             { id: 0, name: "愚者 (The Fool)", keyword: "踏出第一步、大膽嘗試", svg: SVG_TEMPLATES.fool,
-              daily_start: "今天在一股純粹的勇氣與桃花能量中開啟。在情感生活層面上，您有一股想要突破現狀、甚至主動表達好感的浪漫探索渴望。",
-              daily_opp: "在與心儀對象或他人溝通時，容易面臨過於衝動或思慮不周的考驗，切忌在沒有任何承諾基礎下做出承諾。",
-              daily_advice: "建議您放膽去信任當下的眼緣。感情不一定要想得太過深奧，一次自然幽默的攀談就是最好的起手式。",
-              future_start: "未來這段時間會面臨深刻的情感重組與生活新起點。這是一個生活架構大翻新的序曲，放手去追尋新的感情與事業藍圖吧。",
-              future_opp: "發展新關係時，可能遇到因為缺乏長遠心靈支撐、或者行事太過天真而受挫的阻礙，請適度聽取旁人客觀的情感規勸。",
-              future_advice: "命運希望您保持樂觀與開放。不要被過去失敗的情感陰霾束縛，勇敢去開創不曾嘗試過的新連結。"
+              daily_start: "今天是一股純粹的勇氣與探索的起點。如果您正打算在人際或工作上跨出全新的一步，此刻的靈魂流動正全力支持您的好奇心。",
+              daily_opp: "此時最需要留意的是因過度盲目、行事缺乏現實考量而招致的小波折，切忌在沒有任何承諾基礎下做出承諾。",
+              daily_advice: "放膽去信任您的第一直覺。有時生活不需要想得太過深奧，一次自然、幽默的攀談或大膽嘗試就是最好的生活開端。",
+              future_start: "未來這段時間會面臨深刻的情感重組與生活新起點。這是一個生活架構大翻新的序曲，放手去追尋新的感情與事業藍圖。",
+              future_opp: "容易遇到因為缺乏長遠心靈支撐、或者相處行事太過天真而受挫的阻礙，請適度聽取旁人客觀的情感與生涯規勸。",
+              future_advice: "命運希望您保持樂觀與開放。不要被過去失敗的陰霾束縛，勇敢去開創不曾嘗試過的新連結、新航道。"
             },
             { id: 1, name: "魔術師 (The Magician)", keyword: "大展身手、手到擒來", svg: SVG_TEMPLATES.magician,
-              daily_start: "清晨的能量充滿無限的創造力與桃花魅力。手邊資源充足，您天生具備的幽默感，能輕易在對談中吸引心儀者的目光。",
-              daily_opp: "容易因為想法太多而焦點分散，或是在面臨感情與社交選擇時，因為眼高手低而產生不安全感。",
-              daily_advice: "展現您的溝通藝術。只要您肯主動發起對話或約會邀請，周圍的人都會輕易被您的風趣話語深深吸引。",
-              future_start: "接下來將進入您的魅力爆發期，事業與情感資源完美整合，這是一個適合在親密關係中主導大局的黃金期。",
-              future_opp: "中長期最大的絆腳石是空有完美的情感期待卻遲遲不肯付諸實踐，或是過度高估了自己的精力上限。",
-              future_advice: "宇宙建議您大膽邁開腳步。您已經準備好一切追愛工具，主動出擊才能將真愛穩穩抓在手裡。"
+              daily_start: "清晨的能量充滿無限的創造力。您手邊的社交與工作資源充足，大方展現幽默感與溝通技巧，能輕易在對談中吸引心儀對象的目光。",
+              daily_opp: "容易因為想法太多而焦點分散，或是在面臨生活多種選擇時，因為眼高手低而產生無謂的不安全感與空轉。",
+              daily_advice: "展現您的溝通藝術。只要您肯主動發起對話或展開探索，周圍的人都會輕易被您的風趣話語深深吸引。",
+              future_start: "接下來將進入您的個人魅力與實踐爆發期，各種資源完美整合，這是一個適合在人生與親密關係中主導大局的黃金期。",
+              future_opp: "最大的絆腳石是空有完美的情感與生涯期待，卻遲遲不肯付諸實踐，或過度高估了自己的精力上限。",
+              future_advice: "宇宙建議您大膽邁開腳步。您已經準備好一切工具，主動出擊才能將美好的未來與緣分穩穩抓在手裡。"
             },
             { id: 2, name: "女祭司 (The High Priestess)", keyword: "相信直覺、靜觀其變", svg: SVG_TEMPLATES.priestess,
-              daily_start: "今天宜走安靜沉穩的路線。您的第六感極其敏銳，感情上能敏銳察覺心儀對象的細微心思變化，不需要急著戳破。",
-              daily_opp: "容易在親密關係中，因為想得太多、或內心防禦心過重而顯得冷淡，造成不必要的溝通隔閡與誤會。",
-              daily_advice: "遇到情感或生活難題時，不需要急著起衝突。多給自己一點獨處與沉澱，直覺會給您最清澈的答案。",
-              future_start: "未來的主軸偏向內在心靈的提升與靜態觀察。感情上代表與伴侶的精神世界產生更深刻、更有靈魂默契的連結。",
-              future_opp: "最大的阻礙在於過度壓抑真實的情感流露，或是對愛情的接近採取太過消極、抗拒的自閉心態。",
-              future_advice: "命運指引您要學會相信自己的內在洞察。靜觀其變、以靜制動，往往能看穿最複雜的情感糾葛。"
+              daily_start: "今天宜走安靜沉穩的路線。您的第六感極其敏銳，能清晰察覺周圍的人際關係與環境的細微心思變化，此時默默觀察最有利。",
+              daily_opp: "容易因為內心防禦心過重、想得太多而顯得過於冷淡孤傲，造成與人溝通上不必要的隔閡與誤會。",
+              daily_advice: "遇到任何難題，不需要急著起衝突。多給自己一點獨處與思考沉澱的空間，直覺會給您最清澈的答案。",
+              future_start: "未來的主軸偏向內在心靈的提升與靜態觀察。感情上代表與他人產生更深刻、更有靈魂默契的精神共鳴。",
+              future_opp: "最大的阻礙在於過度壓抑真實的情感流露，或是對新事物、新感情的接近採取太過消極與抗拒的防備心態。",
+              future_advice: "命運指引您要學會相信自己的內在洞察。以靜制動、沉著應對，往往能看穿最複雜的情感與生活糾葛。"
             },
             { id: 3, name: "皇后 (The Empress)", keyword: "享受豐盛、愛與美好", svg: SVG_TEMPLATES.empress,
-              daily_start: "今天散發著無與倫比的和諧、感性與豐盛磁場。桃花運勢極佳，適合展現您的溫柔、打扮自己，感受被愛包圍的溫暖。",
-              daily_opp: "容易陷入過度縱容自己、在感情中展現過強佔有慾的盲點，或過度在意他人對你的評價而產生無謂的傲內向焦慮。",
-              daily_advice: "盡情釋放您的愛與包容。主動關心愛人或朋友，多分享您的溫暖，這會像磁鐵一樣為您吸來更多的貴人與好桃花。",
-              future_start: "未來幾個月您的生活與情感將迎來收割期，物質與親密關係都會得到很大的滿足，特別容易孕育出真摯、穩固的伴侶關係。",
-              future_opp: "中長期要注意不要因為日子過得太過安逸，而在情感互動中對旁人產生過度的依賴，失去了自我的獨立性。",
-              future_advice: "大膽去展現您的包容心與美感。不要吝嗇分享您的愛與溫暖，多包容對方，這會是您幸福的源泉。"
+              daily_start: "今天散發著無與倫比的和諧、感性與豐盛磁場。適合展現溫柔、好好打扮自己，感受被生活與愛意包圍的溫暖。",
+              daily_opp: "容易陷入過度縱容自己、在人際關係中展現過強佔有慾的盲點，或過度在意他人評價而產生傲嬌焦慮。",
+              daily_advice: "盡情釋放您的愛與包容。主動分享溫暖，這會像磁鐵一樣為您吸來更多的貴人與好桃花。",
+              future_start: "未來幾個月您的生活與情感將迎來收割期，物質與親密關係都會得到很大的滿足，容易孕育出穩固的和諧關係。",
+              future_opp: "中長期要注意不要因為日子過得太過安逸，而在互動中對旁人產生過度的依賴，失去了自身的獨立性。",
+              future_advice: "大膽去展現您的包容心與美感。不要吝嗇分享您的溫暖，多包容對方，這會是您幸福的源泉。"
             },
             { id: 4, name: "皇帝 (The Emperor)", keyword: "展現魄力、條理分明", svg: SVG_TEMPLATES.emperor,
               daily_start: "今天您擁有極強的主控與安全感。做事條理分明，在人際關係中能展現出令人信賴的擔當與成熟風範。",
-              daily_opp: "在處理感情或合作關係時可能顯得過於固執己見，聽不進對方的軟性撒嬌與意見，導致氣氛有些緊繃僵硬。",
+              daily_opp: "在處理感情或合作關係時可能顯得過於固執己見，聽不進對方的意見，導致氣氛有些緊繃僵硬。",
               daily_advice: "拿出您的肩膀與包容力，果斷做出合理的決策。您的專業感與安全感，在此時是伴侶最信賴的遮雨棚。",
-              future_start: "未來是一個建立威信、穩固個人地盤與事業/家庭版圖的關鍵時期，組織紀律和承諾是維持情感穩定的核心。",
+              future_start: "未來是一個建立威信、穩固個人地盤與事業/家庭版圖的關鍵時期，組織紀律和承諾是維持穩定的核心。",
               future_opp: "最大的挑戰來自於過度僵化的控制欲，或是原因為過分好面子而拒絕在情感爭執中主動低頭認錯。",
               future_advice: "命運要求您建立起清晰的責任感。穩紮穩打地推進生活與愛情目標，您將會取得堅實的成就。"
             },
             { id: 5, name: "教皇 (The Hierophant)", keyword: "尋求指導、貴人相助", svg: SVG_TEMPLATES.hierophant,
-              daily_start: "今天與體制、承諾有很好的共鳴。在感情上非常有利於談及長期未來，或是尋求有智慧的朋友為您的感情指點迷津。",
+              daily_start: "今天與承諾、體制有很好的共鳴。在感情上非常有利於談及長期未來，或是尋求有智慧的朋友為您的關係指點迷津。",
               daily_opp: "容易因為墨守成規、或太想在關係中當好人而顯得畏縮不前，不敢突破不合時宜的情感舊框框或包袱。",
               daily_advice: "多配合團體的規矩，以誠信和禮貌待人。在親密關係中展現足夠的誠意與責任心，自然能收穫好緣分。",
               future_start: "未來幾個月您的身邊將出現提攜您的關鍵貴人，感情上也指引著這是一段適合簽約、建立穩定關係的黃金期。",
-              future_opp: "中長期容易被死板的責任束縛，或是因為過度在乎外界世俗的眼光而失去了感情探索的彈性與熱情。",
+              future_opp: "中長期容易被死板的責任束縛，或是原因為過度在乎外界世俗的眼光而失去了感情探索的彈性與熱情。",
               future_advice: "命運引導您走正道。保持謙遜、信守承諾，多跟優秀的前輩交流，這會讓您在生活與愛情道路上少走冤枉路。"
             },
             { id: 6, name: "戀人 (The Lovers)", keyword: "和諧關係、真誠選擇", svg: SVG_TEMPLATES.lovers,
-              daily_start: "空氣中充滿愉悅的粉紅泡泡與社交共振！桃花運勢直接拉滿，這是一個適合約會、向心儀者坦白心聲的高光時刻。",
+              daily_start: "空氣中充滿愉悅的粉紅泡泡與社交共振！這是一個適合約會、向心儀者坦白心聲、建立美好溝通的高光時刻。",
               daily_opp: "容易在兩個選擇之間猶豫不決，或因為太想討好伴侶而做出違背自己內心真實渴望的妥協與委屈。",
               daily_advice: "做出發自內心深處的決定。只要順應自己真正喜歡、真誠相待的方向，您的情感道路就會帶您走向長久的快樂。",
               future_start: "未來的核心關鍵在於和諧的合夥、戀愛升溫或是面臨人生重大的道路抉擇。這會是一段無比愉快的真愛旅程。",
-              future_opp: "最大的考驗在於容易被外在的誘惑動搖，或在親密關係中因為溝通不夠真誠而產生信任危機。",
+              future_opp: "最大的考驗在於容易被外在的誘惑動搖，或在親密關係中原因為溝通不夠真誠而產生信任危機。",
               future_advice: "宇宙建議您保持內在價值的一致。唯有真誠的面對自己的需求與感受，才能建立持久且舒服的伴侶連結。"
             },
             { id: 7, name: "戰車 (The Chariot)", keyword: "全力衝刺、克服萬難", svg: SVG_TEMPLATES.chariot,
-              daily_start: "今天是一整天戰鬥力爆棚的時刻！在情感追求上，您充滿了不服輸的執著，非常適合用來主動發起攻勢、追求真愛。",
-              daily_opp: "容易在推進感情進度時因脾氣太衝或掌控欲過強，而與重要他人產生直接的言語摩擦，請克制情緒。",
-              daily_advice: "將您的意志力轉化為實質的體貼。不要被路上的小阻礙打亂陣腳，堅信自己的愛意與目標，勇敢前進就對了。",
+              daily_start: "今天是一整天戰鬥力爆棚的時刻！在情感與生活追求上充滿了執著，非常適合用來主動發起攻勢、克服困難。",
+              daily_opp: "容易在推進感情與工作進度時，因脾氣太衝或掌控欲過強，而與他人產生直接的言語摩擦與衝突。",
+              daily_advice: "將您的意志力轉化為實質的體貼。不要被路上的小阻礙打亂陣腳，堅信自己的目標，勇敢前進就對了。",
               future_start: "未來將面臨一波急遽的關係進展與外在競爭，這需要您拿出百分之百的決心，透過堅持克服外界的流言蜚語。",
               future_opp: "中長期最需要提防的是在多個情感或工作目標之間拉扯，漫無目的地瞎忙導致身心透支、雙方心累。",
-              future_advice: "命運催促您集中精力、鎖定單一核心目標。掌控好關係前進的節奏，不要中途動搖，收割真愛就在前方。"
+              future_advice: "命運催促您集中精力、鎖定單一核心目標。掌控好關係前前進的節奏，不要中途動搖，收割真愛就在前方。"
             },
             { id: 8, name: "力量 (The Strength)", keyword: "以柔克剛、溫柔耐心", svg: SVG_TEMPLATES.strength,
-              daily_start: "您擁有一股無形卻強大的親和力。在感情交往中，這種溫柔的魅力能讓最任性的對象不自覺地對您卸下防備。",
-              daily_opp: "容易在處理繁瑣的情感互動時失去耐性，試圖用強硬、冷戰的手腕壓制反對聲音，造成關係反彈。",
-              daily_advice: "強硬不代表有力。請保持微笑、傾聽和耐心。用溫柔與幽默去撫平愛人的焦慮，效果絕對遠超大聲爭吵。",
+              daily_start: "您擁有一股無形卻強大的親和力。在人際交往中，這種溫柔的魅力能讓最任性的對象不自覺地對您卸下防備。",
+              daily_opp: "容易在處理繁瑣的感情互動時失去耐性，試圖用強硬、冷戰的手腕壓制反對聲音，造成關係反彈。",
+              daily_advice: "強硬不代表有力。請保持微笑、傾聽和耐心。用溫柔與幽默去撫平他人的焦慮，效果絕對遠超大聲爭吵。",
               future_start: "未來這段時間是鍛鍊情感心靈韌性的關鍵階段。您會學會如何與對方的缺點和平共處，取得靈魂上的契合。",
               future_opp: "中長期會面臨意志力薄弱、被惰性擊敗，或是過度迎合伴侶要求而忽略自己心理健康的盲目犧牲阻礙。",
               future_advice: "宇宙叮嚀您：真正的勇氣是溫柔的。相信自己的軟實力，用包容和耐力去深耕，時間會證明您的強大。"
             },
             { id: 9, name: "隱士 (The Hermit)", keyword: "留給自己一些時間空間", svg: SVG_TEMPLATES.hermit,
-              daily_start: "今天是一天充電日。感情上您渴望有些私人的空間，適合與伴侶各退一步、安靜地各自做喜歡的事，保持舒適邊界。",
-              daily_opp: "容易給人一種冷漠、難以接近的距離感，或在面對感情困境時深陷在自己的執念中，拒絕與外界溝通。",
+              daily_start: "今天是一天充電日。人際與情感上您渴望有一些私人的空間，適合安靜地各自做喜歡的事，保持舒適的邊界。",
+              daily_opp: "容易給人一種冷漠、難以接近的距離感，或在面對困境時深陷在自己的執念中，拒絕與外界主動溝通。",
               daily_advice: "給自己留點時間整理心境。當您的精神狀態重回巔峰時，您在親密關係中才會更有底氣與包容力。",
               future_start: "未來幾個月您的生活步調會變慢，感情上偏向理性的磨合與沉澱，這是一個深度考驗彼此精神契合度的沉潛期。",
               future_opp: "中長期要注意不要讓自己流於孤僻、逃避社交，或原因為想得太多而產生與人群、伴侶徹底隔閡的孤寂感。",
               future_advice: "命運建議您：點亮自己內心的燈。在看清前面的情感路徑之前不要盲目跟風承諾，先弄清楚自己想要什麼最重要。"
             },
             { id: 10, name: "命運之輪 (Wheel of Fortune)", keyword: "好運來臨、順應流動", svg: SVG_TEMPLATES.wheel,
-              daily_start: "命運的桃花與好運風向在此刻悄悄轉變了。在情感關係中會有些意想不到的偶遇、巧合或邀約，這代表緣分正悄悄敲門。",
-              daily_opp: "如果遇到計畫被打亂，容易產生無謂的抗拒與焦慮，試圖強行扭轉局面反而會給伴侶和自己帶來無謂的爭執壓力。",
+              daily_start: "命運的桃花與好運風向在此刻悄悄轉變了。情感關係中會有些意想不到的偶遇、巧合或邀約，代表緣分正悄悄敲門。",
+              daily_opp: "如果遇到計畫被打亂，容易產生無謂的抗拒與焦慮，試圖強行扭轉局面反而會給彼此帶來無謂的爭執壓力。",
               daily_advice: "請順應宇宙的潮汐。放鬆您的控制欲，接受變更與臨時邀約，它會帶領您去到更奇妙、更有火花的新境地。",
               future_start: "未來半年將會迎來情感軌道或生活層面的重大翻轉，單身者極易遇到真命伴侶，關係也將迅速突破現狀。",
               future_opp: "最大的阻礙是固步自封、死守著舊有的感情觀念、受傷回憶與相處模式不放，因而錯失了命運送來的幸福船票。",
               future_advice: "命運之門已經為您敞開。當情感機遇出現時，毫不猶豫地順應流動、大膽嘗試，這會是您人生躍遷的起點。"
             },
             { id: 11, name: "正義 (The Justice)", keyword: "理性分析、公平回報", svg: SVG_TEMPLATES.justice,
-              daily_start: "今天您擁有極其精準的判斷力。面對感情中的糾葛，您能夠以超然、客觀的心態，理清是非，做出正確決定。",
-              daily_opp: "在面對伴侶時容易顯得太過冷酷、計較得失，凡事流於「講理」而忽略了親密關係中最重要的人情溫度。",
-              daily_advice: "做任何決定時請保持中立與客觀。在情感中，尊重是雙向的，給予對方應有的空間與公平對待，關係自會回歸和諧。",
+              daily_start: "今天您擁有極其精準的判斷力。面對生活與感情中的糾葛，您能夠以超然、客觀的心態理清是非，做出正確決定。",
+              daily_opp: "在面對伴侶與朋友時容易顯得太過冷酷、計較得失，凡事流於「講理」而忽略了親密關係中最重要的人情溫度。",
+              daily_advice: "做任何決定時請保持中立與客觀。在情感中給予對方應有的空間與公平對待，關係自會回歸和諧。",
               future_start: "未來幾個月會有很多理智抉擇、承諾確立或解決舊情感糾紛的時刻，一切事情都將回歸到最公平與和諧的軌道上。",
               future_opp: "中長期容易原因為過分追求完美與絕對的得失公平，而讓自己陷入反覆權衡、無法在愛情中跨出第一步的糾結中。",
               future_advice: "宇宙指引您：保持言行一致。理智與誠實是您未來最堅固的護盾，只要坦蕩面對心中真實感受，結果必然順遂。"
             },
             { id: 12, name: "倒吊人 (The Hanged Man)", keyword: "換個角度看、以退為進", svg: SVG_TEMPLATES.hangedman,
-              daily_start: "今天在人際與感情上不宜強求。若遇到與對方溝通卡住，代表此時放手、給予彼此空間才是最聰明的做法。",
-              daily_opp: "容易產生憋屈、或在感情中自我犧牲太多而感到的委屈感，避免在情緒低落時做下任何委曲求全的低自尊決定。",
+              daily_start: "今天在人際與感情上不宜強求。若遇到與對方溝通卡住，代表此時放手、給予彼此空間與時間才是最聰明的做法。",
+              daily_opp: "容易產生憋屈、或在關係中自我犧牲太多而產生的委屈感，避免在情緒低落時做下任何委曲求全的妥協決定。",
               daily_advice: "試著換個相反的角度來想事情。停下無謂的情感掙扎，將這段等待的時間用來充實自我，對方的態度反而會好轉。",
-              future_start: "未來三個月到半年將是一段耐力考驗期，感情與事業進度緩慢，這要求您學會以退為進，在等待中淬鍊彼此的真情。",
+              future_start: "未來三個月到半年將是一段耐力考驗期，感情與事業進度較為緩慢，這要求您學會以退為進，在等待中淬鍊彼此的真情。",
               future_opp: "最大的絆腳石是盲目、暴躁地想衝出重圍，或在關係中怨天尤人，白白消耗了自己的精神與好感度。",
               future_advice: "命運請您放寬心。有時候暫時放開掌控與執著，才是最頂級的智慧。在安靜中等待，對的時機會主動浮現。"
             },
             { id: 13, name: "死神 (The Death)", keyword: "舊的不去，新的不來", svg: SVG_TEMPLATES.death,
-              daily_start: "新舊能量在此時劇烈交替。清晨適合來個徹底的斷捨離，把不合適的情感曖昧、負面情緒通通丟掉。",
+              daily_start: "新舊能量在此時劇烈交替。清晨適合來個徹底的斷捨離，把不合合適的情感曖昧、負面情緒與習慣通通丟掉。",
               daily_opp: "對於已經失去價值的舊關係、或負面生活習慣依舊死抓不放，這種不甘心與抗拒會讓您感到莫名的疲憊。",
               daily_advice: "微笑著跟不適合、傷害您的一切告別。雖然心中有一點不捨，但這正是您騰出雙手，接住真愛與新生活的唯一途徑。",
               future_start: "未來半年將會經歷一場深刻的人生與情感斷捨離，某些名存實亡的舊結構會徹底瓦解，取而代之的是生命的新生。",
-              future_opp: "中長期最大的痛苦來源於不甘心。如果雙眼一直盯著已經逝去、不愛你的人不放，您就沒辦法迎接新的人到來。",
-              future_advice: "不要害怕結束。這是一場宇宙為您規劃的重開機，徹底放下舊包袱與情感遺憾，您才能迎接嶄新桃花。"
+              future_opp: "中長期最大的痛苦來源於不甘心。如果雙眼一直盯著已經逝去、不愛您的人不放，您就沒辦法迎接新的人到來。",
+              future_advice: "不要害怕結束。這是一場宇宙為您規劃的重開機，徹底放下舊包袱與情感遺憾，您才能迎接新生的美好桃花。"
             },
             { id: 14, name: "節制 (The Temperance)", keyword: "和諧溝通、完美協調", svg: SVG_TEMPLATES.temperance,
-              daily_start: "今天的能量流暢而和諧。您擁有極佳的溝通協調能力，適合與愛人進行深度的靈魂談心，或解決冷戰中的小隔閡。",
+              daily_start: "今天的能量流暢而和諧。您擁有極佳的溝通協調能力，適合與他人進行深度的靈魂談心，或解決人際上的小隔閡。",
               daily_opp: "容易在人際往來、或是情感表達上失去平衡，或是因為一味追求表面和平、當濫好人而壓抑了自己真實的渴望。",
               daily_advice: "保持心靈的流動。待人處事保持溫和與彈性，傾聽對方的委屈，您會發現身邊本來無解的矛盾都會自然消融。",
               future_start: "未來是一個能量大融通、情感關係甜蜜昇華的時期。事業上跨界合作順暢，伴侶間的默契也將達到全新的高度。",
-              future_opp: "中長期要注意生活節奏或關係發展太過平淡而失去激情，或是因為過度遷就對方而失去了自己的獨特個性。",
+              future_opp: "中長期要注意生活節奏或關係發展太過平淡而失去激情，或是原因為過度遷就對方而失去了自己的獨特個性。",
               future_advice: "宇宙建議您：尋找心靈的平衡。在任何極端的狀況下都不要偏激，用時間和溫柔的步調去融合一切挑戰。"
             },
             { id: 15, name: "惡魔 (The Devil)", keyword: "覺察盲點、跳出舒適圈", svg: SVG_TEMPLATES.devil,
-              daily_start: "今天的能量充滿強烈的慾望、誘惑與佔有欲。這是一個提醒您要提高警覺、正視自己內心不健康的情感依賴的日子。",
+              daily_start: "今天的能量提醒您要提高警覺。正視自己內心不健康的情感依賴、對物質的過度執念或被束縛的盲點。",
               daily_opp: "容易深陷在情感執念、肉體慾望中，被不健康的佔有慾與不切實際的幻想牽著鼻子走，自我消耗。",
               daily_advice: "其實沒有任何人、任何回憶能真正困住您。只要您肯主動跨出那一步，放下心中的貪執，您就重新獲得了自由。",
               future_start: "未來會面臨巨大的世俗誘惑，或是容易沉迷於一段不健康的孽緣中。這是一場關於意志力與真愛的修行。",
@@ -527,49 +544,49 @@
               future_advice: "命運提醒您：拿回人生的主導權。主動斬斷對您有害的束縛、有毒的感情或癮頭，您將會迎來真正的靈魂解放。"
             },
             { id: 16, name: "高塔 (The Tower)", keyword: "強行打破、震撼教育", svg: SVG_TEMPLATES.tower,
-              daily_start: "生活與情感軌道可能會出現突發的劇變或變更。別慌張，這代表那雙早已不合腳、消耗您的舊鞋子被命運強行脫掉了。",
-              daily_opp: "容易因為突發的消息、或計畫被打亂而感到情緒失控，在親密關係中過度崩潰與爭吵只會讓局勢變得更糟。",
-              daily_advice: "接受破壞之後產生的全新空間。某些虛妄的情感泡沫在今天破滅，實則是宇宙為您掃清了障礙，展現出真誠的地基。",
+              daily_start: "生活與情感軌道可能會出現突發的劇變。別慌張，這代表那雙早已不合腳、消耗您的舊鞋子被命運強行脫掉了。",
+              daily_opp: "容易原因為突發的消息、或計畫被打亂而感到情緒失控，在關係中過度崩潰與爭吵只會讓局勢變得更糟糕。",
+              daily_advice: "接受破壞之後產生的全新空間。某些虛妄的泡沫在今天破滅，實則是宇宙為您掃清了障礙，展現出真實的地基。",
               future_start: "未來三個月到半年，生活中的某個板塊（如長期的情感關係或事業結構）會經歷一場劇烈、不可逆的重建。",
               future_opp: "最大的阻礙是在巨變發生時依然抱殘守缺，試圖去修補已經腐朽、不愛您的關係，白白浪費心力。",
               future_advice: "命運請您保持勇敢。所有的崩解都是為了迎來真正穩固、健康、真誠的重建，擁抱變化，新的人生正在崛起。"
             },
             { id: 17, name: "星星 (The Star)", keyword: "希望常在、療癒充電", svg: SVG_TEMPLATES.star,
-              daily_start: "今天是一天療癒充電日。感情上散發著深沉的放鬆、和諧與希望，適合與伴侶一起聽聽歌、散散步，舒緩緊繃的神經。",
-              daily_opp: "容易因為過度浪漫、或把伴侶和未來想得太過完美，而在一點點現實瑣事上面臨有些脫離現實的幻滅與落差感。",
+              daily_start: "今天是一天療癒充電日。情感上散發著深沉的放鬆、和諧與希望，適合放慢生活步調，舒緩緊繃的神經。",
+              daily_opp: "容易原因為過度浪漫、或把伴侶和未來想得太過完美，而在一點點現實瑣事上面臨有些脫離現實的幻滅與落差感。",
               daily_advice: "保持對未來的樂觀與希望。多向愛人或世界展現您最純粹、不設防、溫柔的一面，好運與真愛正在朝您奔來。",
               future_start: "未來是一段長期的情感療癒、休養生息與夢想發芽期。您的生活會逐漸走出陰暗與情傷，重現清晰明朗的希望。",
               future_opp: "中長期要注意不要整天沉溺在不切實際的幻想中，或原因為對現狀抱持太多粉紅泡泡而忽視了腳下的泥土與責任。",
               future_advice: "宇宙指引您：保持純粹與希望。用您內心的光去溫柔地照亮身邊的人，您的樂觀將是您最強大的桃花護身符。"
             },
             { id: 18, name: "月亮 (The Moon)", keyword: "正視內心焦慮、相信直覺", svg: SVG_TEMPLATES.moon,
-              daily_start: "今天您心中可能籠罩著一層看不清的情感迷霧。容易覺得有些對愛情感到迷茫或胡思亂想，不宜急著做重大決定。",
-              daily_opp: "容易被自己幻想出來的情感焦慮、或莫名的不安全感給嚇到，在人際與親密關係中顯得有些疑神疑鬼、缺乏信任。",
+              daily_start: "今天您心中可能籠罩著一層看不清的情感迷霧。容易覺得有些迷茫或胡思亂想，此時不宜急著做下重大的生活決定。",
+              daily_opp: "容易被自己幻想出來的焦慮、或莫名的不安全感給嚇到，在人際與親密關係中顯得有些疑神疑鬼、缺乏信任。",
               daily_advice: "別怕黑夜。當關係看不清方向時，摸著黑慢慢走，相信您靈魂深處最敏銳的直覺，它會充當您的手電筒。",
               future_start: "未來一段時間會面臨一段探索情感恐懼、方向有些不明朗的摸索磨合期。這需要雙方付出極大的耐心與傾聽。",
               future_opp: "中長期最怕原因為捕風捉影而與親密的伴侶產生不可挽回的信任嫌隙，或原因為害怕受傷而遲遲不敢跨出承諾的一步。",
               future_advice: "命運指引您：誠實的面對心中的焦慮。當您敢直視內在陰影與不安全感時，您就會發現那些怪獸其實只是紙老虎。"
             },
             { id: 19, name: "太陽 (The Sun)", keyword: "光芒四射、順利無阻", svg: SVG_TEMPLATES.sun,
-              daily_start: "桃花運與人緣極佳的一天！清晨一睜眼就充滿了活力。無論是約會、示好還是人際溝通都極其順手，深受大家喜愛。",
-              daily_opp: "要注意不要原因為過於自信、甚至是驕傲自滿，而忽略了伴侶或身邊親密夥伴默默付出的感受與需求。",
+              daily_start: "桃花運與人緣極佳的一天！清晨一睜眼就充滿了活力。無論是約會、示好還是工作溝通都極其順手，深受大家喜愛。",
+              daily_opp: "要注意不要原因為過於自信、甚至是驕傲自滿，而忽略了身邊親密夥伴默默付出的感受與需求。",
               daily_advice: "保持開朗的笑臉。今天只要大方展現您的熱情、真誠與自信，您就是全場耀眼的焦點，困難都會為您讓路。",
               future_start: "未來是一段事業與情感大放異彩、愛情甜美開花結果的黃金收穫期。您的努力會被所有人看見，收穫榮耀與認可。",
               future_opp: "中長期要注意提防光芒太盛而招致旁人的嫉妒，或是原因為在關係中過度強勢而壓抑了伴侶的表達空間。",
               future_advice: "宇宙大聲宣告：盡情發光吧！保持孩童般的真誠、熱情與開朗，您的正面能量會為您吸引來無窮無盡的好運。"
             },
             { id: 20, name: "審判 (The Judgement)", keyword: "關鍵決定、靈魂覺醒", svg: SVG_TEMPLATES.judgement,
-              daily_start: "情感關係迎來關鍵的突破與覺醒。您會突然想通了某些卡關很久的感情執念，有一種重生的輕鬆感。",
-              daily_opp: "容易面臨不得不對過去的情感拖延、承諾敷衍或抉擇錯誤買單的時刻，切忌逃避問題，勇敢去面對並解決它。",
+              daily_start: "關係迎來關鍵的突破與覺醒。您會突然想通了某些卡關很久的情感或生活執念，有一種重生的輕鬆感。",
+              daily_opp: "容易面臨不得不對過去的拖延、敷衍或抉擇錯誤買單的時刻，切忌逃避問題，勇敢去面對並解決它。",
               daily_advice: "是時候把過去積累的情感包袱、遺憾或怨恨通通丟掉了。相信內心深處最真實的聲音，做出不後悔的真誠決定。",
               future_start: "未來幾個月您會迎來情感或人生方向的重大審判與救贖轉機。這是一個徹底告別過去、為愛重生的神聖時刻。",
               future_opp: "中長期要注意原因為害怕改變現狀、或是死守著過去死去的感情和遺憾不放，而拒絕了命運號角的第二次邀請。",
               future_advice: "命運向您宣告：屬於您的重生時刻已到。聽從心靈最真誠的指引，大步邁向為您量身打造的情感與生活新舞台。"
             },
             { id: 21, name: "世界 (The World)", keyword: "圓滿落幕、迎向圓滿", svg: SVG_TEMPLATES.world,
-              daily_start: "今天的能量達到了完美的和諧與情感圓滿。不論是手上的項目，還是與伴侶的關係，都在今天看見了極佳的成果。",
+              daily_start: "今天的能量達到了完美的和諧與圓滿。不論是手上的生活項目，還是與他人的關係，都在今天看見了極佳的成果。",
               daily_opp: "容易原因為現狀太過安逸而顯得有些不思進取，或者在感情大局已定時忽略了對彼此關係的日常呵護與情趣鋪墊。",
-              daily_advice: "請為努力經營生活的自己大聲鼓掌。帶著滿滿的愛與自信，與愛人攜手，展開下一階段更精彩的生命旅程。",
+              daily_advice: "請為努力經營生活的自己大聲鼓掌。帶著滿滿的愛與自信，與重要的人攜手，展開下一階段更精彩的生命旅程。",
               future_start: "未來半年將會迎來一個重要關係的開花結果、或情感達到終極的圓滿。這是一個大吉大利、幸福滿溢的終極結局。",
               future_opp: "中長期最大的危機是安於現狀不求突破，在達到情感巔峰或事業高點後，原因為害怕未來走下坡而抗拒開啟全新的探索。",
               future_advice: "宇宙給予您最深沉的祝福。您已經完成了這個階段的情感課題，帶著圓滿的智慧與從容，展開下一段真愛旅行吧。"
@@ -597,7 +614,7 @@
             },
             { id: 103, name: "沉穩岩石黑 (Obsidian Black)", keyword: "堅毅、專注、防禦負能量", 
               svg: `<g stroke="currentColor" stroke-width="1.2" fill="none"><polygon points="100,50 140,150 60,150" fill="#4b5563" fill-opacity="0.3" stroke="#111827" stroke-width="2"/><circle cx="100" cy="116" r="15" stroke="#f59e0b"/></g>`, 
-              desc: "需要極致專注與個人氣場的一天。阻隔外在的流言蜚語或不健康爛桃花騷擾，散發高冷吸引力。",
+              desc: "需要極致專注與個人氣場的一天。阻隔外在的流言蜚語或不健康爛桃花阻礙，散發高冷吸引力。",
               color: "冷石黑、木炭灰、極致純黑",
               material: "挺括西裝面料、硬挺皮革、羊毛呢",
               style: "中性風俐落寬肩西裝外套、高腰皮質直筒短裙",
@@ -656,6 +673,7 @@
         let selectedIndices = [];
         let flippedCards = [];
 
+        // --- 3. 頁面切換控制 ---
         function navigate(sectionId) {
             ['home', 'reading', 'reveal', 'result', 'encyclopedia', 'deck-view'].forEach(s => {
                 const el = document.getElementById(`sec-${s}`);
@@ -679,6 +697,7 @@
             }
         }
 
+        // --- 4. 啟動選牌與洗牌 ---
         function initiateReading(mode) {
             currentMode = mode;
             selectedIndices = [];
@@ -716,6 +735,7 @@
             triggerShuffleAnimation();
         }
 
+        // 隨機洗牌算法
         function secureShuffle(array) {
             let currentIndex = array.length, randomIndex;
             const newArray = [...array];
@@ -727,6 +747,7 @@
             return newArray;
         }
 
+        // 聚攏交疊、左右穿梭物理洗牌動畫
         function triggerShuffleAnimation() {
             const pool = document.getElementById('deck-pool');
             const cards = pool.querySelectorAll(':scope > div');
@@ -761,6 +782,7 @@
             document.getElementById('cosmic-magnetic-val').innerText = `${index}% ${state}`;
         }
 
+        // 渲染牌池
         function renderDeckPool() {
             const poolContainer = document.getElementById('deck-pool');
             poolContainer.innerHTML = '';
@@ -782,6 +804,7 @@
             return 'bg-gradient-to-br from-slate-950 via-cyan-950 to-purple-950 border-cyan-500/30 hover:border-cyan-400';
         }
 
+        // 精緻卡背
         function getCardBackSVG() {
             return `
                 <div class="absolute inset-1 border border-amber-500/10 rounded-xl flex items-center justify-center">
@@ -805,6 +828,7 @@
             `;
         }
 
+        // 選擇卡牌
         function selectCard(index) {
             const targetCount = currentMode === 'style' ? 1 : 3;
             if (selectedIndices.includes(index) || selectedIndices.length >= targetCount) return;
@@ -872,6 +896,7 @@
             }
         }
 
+        // --- 5. 翻牌祭壇調度 ---
         function transitionToReveal() {
             navigate('reveal');
             
@@ -951,6 +976,7 @@
             }
         }
 
+        // --- 6. 核心：智慧命運編織與解讀發送 ---
         async function generateDeepInterpretation() {
             const overlay = document.getElementById('loading-overlay');
             const loadText = document.getElementById('loading-text');
@@ -973,6 +999,7 @@
                 loadText.innerText = loadSteps[stepIdx];
             }, 1200);
 
+            // 強化 Prompts 規則：絕不生硬提及卡片名稱，解讀直接白話口語
             let prompt = `您是一位擁有30年情感諮商與神祕學占卜經驗的塔羅牌與神諭大師。
             當前使用者進行了【${currentMode === 'daily' ? '今日整體運勢' : currentMode === 'style' ? '幸運色與風格（抽一張牌）' : '中長期未來三至六個月情感與生活發展（極詳細五板塊解讀）'}】占卜。
             
@@ -1012,7 +1039,7 @@
             }`;
 
             try {
-                const apiKey = "";
+                const apiKey = ""; // 用戶可選配置
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
                 
                 const response = await fetch(apiUrl, {
@@ -1071,6 +1098,7 @@
             }
         }
 
+        // --- 7. 結果頁動態整合渲染 ---
         function renderResultView(data, card1, card2, card3) {
             navigate('result');
 
@@ -1234,6 +1262,7 @@
             }
         }
 
+        // --- 8. 本地動態命理編織模組 (無重複卡牌名，因牌而異，100%動態不重複) ---
         function generateLocalFallback(card1, card2, card3) {
             let fallbackData = {};
             
@@ -1257,26 +1286,60 @@
                     }
                 };
             } else {
-                fallbackData = {
-                    summary: `今天您的能量狀態非常流暢和諧。無論您打算推展計畫還是享受日常，都能感受到一股支持您的隱形助力。今天人緣磁場很不錯，如果有期待的社交約會，大方展現微笑即可，一切都會自然發展。`,
-                    obstacle: `今日沒有太大的阻礙！只要順其自然，保持平常心，就能讓一整天都順利度過。`,
-                    advice: `多給自己一點放鬆的片刻。喝杯好喝的茶、聽聽音樂，把這份和諧的能量延續下去，就是今天最完美的開運秘方。`
-                };
+                // 今日整體運勢：直接精準呈現卡面意境，無冗餘罐頭詞
+                const summary = card1.daily_start;
+                const obstacle = card2.daily_opp;
+                const advice = card3.daily_advice;
+
+                fallbackData = { summary, obstacle, advice };
             }
 
             renderResultView(fallbackData, card1, card2, card3);
         }
 
+        // 核心動態翻譯算法：將情感桃花詞彙，動態編織成流暢工作與生涯財運調性
+        function adaptToCareer(text) {
+            if (!text) return "";
+            return text
+                .replace(/情感生活/g, "職業生涯")
+                .replace(/情感關係/g, "合作與職場關係")
+                .replace(/桃花能量/g, "事業發展能量")
+                .replace(/桃花/g, "人際貴人")
+                .replace(/伴侶關係/g, "夥伴合作夥伴")
+                .replace(/伴侶/g, "合作夥伴")
+                .replace(/愛意/g, "熱疇")
+                .replace(/愛情/g, "工作")
+                .replace(/追愛/g, "追尋目標")
+                .replace(/真愛/g, "理想事業")
+                .replace(/戀愛/g, "事業協同")
+                .replace(/感情/g, "事業與合作");
+        }
+
+        // 核心動態翻譯算法：將情感桃花詞彙，動態編織成內在靈性成長與思維修練調性
+        function adaptToGrowth(text) {
+            if (!text) return "";
+            return text
+                .replace(/情感生活/g, "精神世界")
+                .replace(/情感關係/g, "自我認同與心靈連結")
+                .replace(/桃花能量/g, "靈性啟迪能量")
+                .replace(/桃花/g, "生命智慧")
+                .replace(/伴侶關係/g, "心靈與內在相處")
+                .replace(/伴侶/g, "內在自我")
+                .replace(/情感/g, "心靈層面");
+        }
+
+        // 中長期展望（5大板塊本地動態編織，100%因牌而異，完美去除任何前置標題及冒號）
         function getLocalFutureBlocks(card1, card2, card3) {
             return {
-                romance: `中長期的情愛旅途將在一股大膽、探索與溫和的重啟能量中前行。單身者極易在未來的旅行、異地或全新社交場合遇見志趣投合、甚至讓您深深著迷的交往對象。有伴侶的人，雙方的關係正在往一個更有承諾、更深信賴的境界推進，精神共鳴度極佳。`,
-                career: `未來的幾個月，您的工作版圖將經歷一場深度的資源整理與整合。您之前所播種的創意與想法，都將在對的時間迎來圓滿的回報。資金流向順暢，也容易在合約、合夥和跨界協調上大展宏圖。`,
-                growth: `您將經歷一場從浮躁走向沉穩的蛻變。您開始懂得如何溫柔地面對自己的短處與不安全感，學會相信靈魂深處最敏銳的第六感，內在力量正緩慢且穩定地昇華。`,
-                warning: `請高度提防因為一味追求表面上的和平，或者原因為害怕受傷而把內心世界封閉起來的自閉傾向。發展中切忌因一時的情感盲目或衝動做下不負責任的許諾。`,
-                action: `宇宙叮嚀您，真正的勇氣是和諧與溫柔的。保持內心價值觀的一致，多去包容和理解身邊的人，您越溫柔，未來在您身邊匯聚的好運桃花就越強大。`
+                romance: card1.future_start,
+                career: `在工作、學業與世俗成就的領域，未來幾個月將受到當前能量的交互牽引。${adaptToCareer(card2.future_start)} 建議您著眼於務實的基礎，重新梳理身邊的資源與人際網絡，並妥善處理面對阻礙時的盲點，便能穩健地開創屬於您的全新格局。`,
+                growth: `這段中長期的旅程是您心靈深度演化與潛意識思維重整的黃金契機。${adaptToGrowth(card3.future_start)} 您將逐漸看清內在的真實需求，擺脫外在繁雜的噪音，在思維與心智上完成一場溫柔而堅定的人格蛻變。`,
+                warning: card2.future_opp,
+                action: card3.future_advice
             };
         }
 
+        // --- 9. 牌面圖鑑過濾與渲染 ---
         function filterGallery(type) {
             const grid = document.getElementById('gallery-grid');
             grid.innerHTML = '';
